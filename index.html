@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indoor Recess-O-Matic</title>
+<link rel="icon" href="edu_bug.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Edutopia palette */
+    --edu-orange:#FF4C00; --edu-dark-orange:#FF780D; --edu-tangerine:#FF9B0D; --edu-sunshine:#FFBC0D;
+    --edu-midnight:#1D2A44; --edu-space:#004861; --edu-pacific:#0094C7; --edu-tech:#4FD2FF;
+    --edu-purple:#532681; --edu-light-purple:#A973DF; --edu-pink:#E75CAE; --edu-salmon:#F27179;
+    --edu-teal:#00AFAB; --edu-light-teal:#2AD2C9; --edu-green:#6FB300; --edu-light-green:#BDF22E;
+    --edu-dark-grey:#333333; --edu-light-grey:#666666; --edu-cream:#FFF7ED; --edu-white:#FFFFFF;
+    --pixel:"Press Start 2P",monospace; --mono:"VT323",monospace;
+    --lever-w:200px; --marquee-h:84px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;color:var(--edu-cream);
+    background-color:var(--edu-midnight);
+    background-image:
+      linear-gradient(45deg,#223052 25%,transparent 25%,transparent 75%,#223052 75%),
+      linear-gradient(45deg,#223052 25%,transparent 25%,transparent 75%,#223052 75%);
+    background-size:12px 12px;background-position:0 0,6px 6px;
+    font-family:var(--mono);user-select:none;-webkit-user-select:none;touch-action:none}
+
+  canvas#drum,canvas#confetti{position:fixed;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+  canvas#confetti{pointer-events:none}
+  #scanlines{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.28;
+    background:repeating-linear-gradient(0deg,transparent 0 3px,#000 3px 4px)}
+
+  /* ---------- Marquee ---------- */
+  #marquee{position:fixed;left:0;top:0;right:var(--lever-w);height:var(--marquee-h);z-index:5;
+    background:var(--edu-midnight);border-bottom:4px solid var(--edu-sunshine);
+    display:flex;align-items:center;gap:18px;padding:0 20px}
+  #marquee img{width:44px;height:44px;image-rendering:auto;border:3px solid var(--edu-cream);background:#fff}
+  #marquee h1{margin:0;font-family:var(--pixel);font-size:clamp(13px,1.9vw,27px);line-height:1.2;color:var(--edu-sunshine);
+    text-shadow:3px 3px 0 var(--edu-orange),6px 6px 0 #000}
+  #marquee p{margin:0;font-size:clamp(16px,1.7vw,26px);line-height:1;color:var(--edu-tech);letter-spacing:1px}
+  #marquee .txt{display:flex;flex-direction:column;gap:8px}
+  #ribbon{position:fixed;left:0;right:var(--lever-w);top:var(--marquee-h);height:8px;z-index:5;
+    background:linear-gradient(90deg,var(--edu-orange) 0 14.28%,var(--edu-sunshine) 0 28.56%,var(--edu-green) 0 42.84%,
+      var(--edu-teal) 0 57.12%,var(--edu-pacific) 0 71.4%,var(--edu-light-purple) 0 85.68%,var(--edu-pink) 0)}
+
+  /* ---------- Lever ---------- */
+  #leverWrap{position:fixed;right:0;top:0;bottom:0;width:var(--lever-w);z-index:6;perspective:900px;
+    background:var(--edu-space);border-left:6px solid var(--edu-pacific);
+    background-image:linear-gradient(45deg,#00547a 25%,transparent 25%,transparent 75%,#00547a 75%),
+      linear-gradient(45deg,#00547a 25%,transparent 25%,transparent 75%,#00547a 75%);
+    background-size:12px 12px;background-position:0 0,6px 6px}
+  #leverInner{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:470px}
+  #leverBase{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:140px;height:92px;
+    background:var(--edu-midnight);border:4px solid var(--edu-cream);box-shadow:6px 6px 0 #000}
+  #leverBase::before{content:"";position:absolute;left:0;right:0;top:0;height:14px;background:var(--edu-pacific)}
+  #leverBase::after{content:"";position:absolute;left:50%;top:28px;transform:translateX(-50%);width:36px;height:36px;
+    background:#000;border:4px solid var(--edu-light-grey)}
+  #rod{position:absolute;bottom:58px;left:50%;width:22px;height:330px;margin-left:-11px;
+    transform-origin:50% 100%;transform-style:preserve-3d;transform:rotateX(var(--a,0deg));
+    background:linear-gradient(90deg,#666 0 25%,#ddd 25% 60%,#888 60%);border:3px solid #000;cursor:grab}
+  #rod.snap{transition:transform .45s cubic-bezier(.25,1.7,.45,1)}
+  #knob{position:absolute;left:50%;top:0;width:84px;height:84px;border-radius:50%;
+    transform:translate(-50%,-50%) rotateX(calc(-1 * var(--a,0deg)));
+    background:radial-gradient(circle at 34% 30%,var(--edu-sunshine) 0 14%,var(--edu-tangerine) 14% 40%,var(--edu-orange) 40% 72%,#b53500 72%);
+    border:4px solid #000;box-shadow:5px 5px 0 #0008}
+  #rod.snap #knob{transition:transform .45s cubic-bezier(.25,1.7,.45,1)}
+  #leverHint{position:absolute;top:-10px;left:0;right:0;text-align:center;font-family:var(--pixel);font-size:18px;
+    color:var(--edu-sunshine);text-shadow:3px 3px 0 #000;animation:blink 1s steps(2,end) infinite}
+  #leverWrap.busy #leverHint{animation:none;opacity:.3}
+  #leverWrap.busy #rod{cursor:not-allowed}
+  @keyframes blink{0%{opacity:1}50%{opacity:0}}
+  #leverLabel{position:absolute;left:0;right:0;bottom:26px;text-align:center;font-family:var(--pixel);font-size:10px;color:var(--edu-tech);line-height:1.8}
+
+  /* ---------- Result box (RPG dialog style) ---------- */
+  #overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:#0009}
+  #overlay.show{display:flex}
+  #card{width:min(760px,90vw);background:var(--edu-cream);color:var(--edu-midnight);
+    border:6px solid var(--edu-midnight);outline:6px solid var(--edu-cream);box-shadow:0 0 0 12px var(--edu-midnight),14px 14px 0 12px #000;
+    padding:30px 36px 28px;text-align:center;transform:scale(.7);opacity:0;transition:transform .35s steps(5),opacity .2s steps(3)}
+  #overlay.show #card{transform:scale(1);opacity:1}
+  #card .kicker{font-family:var(--pixel);font-size:14px;color:var(--edu-orange);letter-spacing:1px}
+  #card .emoji{font-size:clamp(70px,12vw,120px);line-height:1.1;margin:8px 0 4px}
+  #card h2{margin:0;font-family:var(--pixel);font-size:clamp(18px,3.4vw,36px);line-height:1.35;color:var(--edu-pacific);
+    text-shadow:3px 3px 0 var(--edu-sunshine)}
+  #card p{font-size:clamp(22px,2.6vw,30px);line-height:1.25;margin:18px 0 24px;color:var(--edu-dark-grey)}
+  .btn{font-family:var(--pixel);font-size:14px;border:4px solid var(--edu-midnight);padding:16px 22px;margin:6px;
+    cursor:pointer;box-shadow:5px 5px 0 var(--edu-midnight);transition:transform .05s;color:var(--edu-midnight)}
+  .btn:active{transform:translate(5px,5px);box-shadow:0 0 0 var(--edu-midnight)}
+  .btn.primary{background:var(--edu-light-green)}
+  .btn.secondary{background:var(--edu-sunshine)}
+
+  /* ---------- Teacher panel ---------- */
+  .hud{position:fixed;bottom:18px;z-index:7;font-family:var(--pixel);font-size:11px;background:var(--edu-midnight);
+    color:var(--edu-cream);border:3px solid var(--edu-cream);padding:12px 14px;cursor:pointer;box-shadow:4px 4px 0 #000}
+  .hud:hover{background:var(--edu-space)}
+  #gear{left:18px}
+  #fs{left:170px}
+  #panel{position:fixed;left:0;top:0;bottom:0;width:360px;max-width:92vw;background:var(--edu-midnight);z-index:30;
+    border-right:6px solid var(--edu-sunshine);transform:translateX(-105%);transition:transform .25s steps(6);display:flex;flex-direction:column}
+  #panel.open{transform:none}
+  #panel header{padding:18px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--edu-pacific)}
+  #panel header h3{margin:0;font-family:var(--pixel);font-size:13px;color:var(--edu-sunshine)}
+  #panel header button{background:none;border:0;color:#fff;font-family:var(--pixel);font-size:18px;cursor:pointer}
+  #panel .tools{padding:12px 16px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:4px solid var(--edu-pacific)}
+  #panel .tools button{font-family:var(--pixel);font-size:10px;background:var(--edu-pacific);color:#fff;border:3px solid #fff;padding:9px 10px;cursor:pointer;box-shadow:3px 3px 0 #000}
+  #panel .list{overflow:auto;padding:8px 12px 20px;flex:1}
+  #panel label{display:flex;align-items:center;gap:12px;padding:8px;font-size:24px;line-height:1;cursor:pointer}
+  #panel label:hover{background:#ffffff14}
+  #panel label input{width:20px;height:20px;accent-color:var(--edu-green)}
+  #panel label.off{opacity:.45;text-decoration:line-through}
+  #panel .note{padding:10px 20px 14px;font-size:19px;line-height:1.15;color:var(--edu-tech);border-top:4px solid var(--edu-pacific)}
+  #panel .warn{color:var(--edu-sunshine);min-height:1.2em}
+
+  @media (max-width:760px){
+    :root{--lever-w:120px;--marquee-h:66px}
+    #leverInner{height:330px}
+    #rod{height:220px;bottom:48px}
+    #knob{width:62px;height:62px}
+    #leverBase{width:100px;height:74px}
+    #marquee img{display:none}
+    #marquee p{display:none}
+    #leverLabel{display:none}
+    #fs{display:none}
+  }
+</style>
+</head>
+<body>
+<canvas id="drum"></canvas>
+<canvas id="confetti"></canvas>
+<div id="scanlines"></div>
+
+<div id="marquee">
+  <img src="edu_bug.png" alt="edu">
+  <div class="txt">
+    <h1>INDOOR RECESS-O-MATIC</h1>
+    <p>PULL THE LEVER &bull; PLAY THE GAME &bull; 20 SCREEN-FREE INDOOR RECESS ACTIVITIES</p>
+  </div>
+</div>
+<div id="ribbon"></div>
+
+<div id="leverWrap">
+  <div id="leverInner">
+    <div id="leverHint">PULL!</div>
+    <div id="leverBase"></div>
+    <div id="rod"><div id="knob"></div></div>
+  </div>
+  <div id="leverLabel">DRAG DOWN<br>OR PRESS SPACE</div>
+</div>
+
+<div id="overlay">
+  <div id="card">
+    <div class="kicker">&#9654; TODAY'S GAME IS...</div>
+    <div class="emoji" id="rEmoji">🎉</div>
+    <h2 id="rName">Freeze Dance</h2>
+    <p id="rDesc"></p>
+    <button class="btn primary" id="playBtn">LET'S PLAY!</button>
+    <button class="btn secondary" id="againBtn">SPIN AGAIN</button>
+  </div>
+</div>
+
+<button id="gear" class="hud">&#9881; TEACHER</button>
+<button id="fs" class="hud">&#9974; FULLSCREEN</button>
+
+<aside id="panel">
+  <header><h3>TEACHER SETTINGS</h3><button id="closePanel" aria-label="Close">X</button></header>
+  <div class="tools">
+    <button id="muteBtn">SOUND: ON</button>
+    <button id="allOn">ALL ON</button>
+  </div>
+  <div class="list" id="list"></div>
+  <div class="note">Uncheck an activity to take it off the wheel. Saved on this device.<div class="warn" id="warn"></div></div>
+</aside>
+
+<script>
+/* ---------------- Activities ---------------- */
+const ACTIVITIES = [
+  {e:"🕺", n:"Freeze Dance",            d:"One student is the DJ and sings or claps a beat. Everyone dances, and when the beat stops, FREEZE! Anyone caught moving sits out until the next round."},
+  {e:"🔢", n:"Four Corners",            d:"Number the four corners of the room. The caller closes their eyes and counts to ten while everyone sneaks to a corner. The caller names a corner, and anyone standing there is out."},
+  {e:"👍", n:"Heads Up, 7 Up",          d:"Seven students stand at the front. Everyone else puts their head down with a thumb up. The seven each secretly press one thumb. Heads up! Guess who picked you."},
+  {e:"🎭", n:"Charades",                d:"Act out an animal, movie, job, or book character with no talking. The class guesses. Whoever guesses right acts out the next one."},
+  {e:"🤔", n:"Would You Rather",        d:"The teacher or a student reads a silly 'Would you rather' question. Move to the left side of the room for choice A or the right side for choice B, then share why!"},
+  {e:"🫡", n:"Simon Says",              d:"Simon gives commands like 'Simon says touch your toes.' Only follow commands that start with 'Simon says.' If you move on a command without it, you're out!"},
+  {e:"✏️", n:"Whiteboard Pictionary",   d:"Split into two teams. One artist per team draws a secret word on the board while teammates shout guesses. No letters or numbers allowed. First team to guess wins the point."},
+  {e:"✈️", n:"Paper Airplane Contest",  d:"Everyone gets one sheet of paper and three minutes to build the best plane. Line up and launch! Award prizes for farthest flight, longest hang time, and best trick."},
+  {e:"🪢", n:"Human Knot",              d:"Stand in a circle, reach in, and grab two different people's hands. Now untangle yourselves into a circle without letting go. Teamwork and talking are key!"},
+  {e:"📞", n:"Telephone",               d:"Sit in a circle. The first person whispers a sentence to their neighbor, who passes it on. The last person says it out loud. See how silly it got!"},
+  {e:"✊", n:"Rock Paper Scissors",      d:"Find a partner and play. The loser becomes the winner's biggest cheerleader and follows them to the next match. Keep going until one champion has the whole class cheering!"},
+  {e:"🤫", n:"Silent Ball",             d:"Everyone stands on or beside their desk. Toss a soft ball around the room in total silence. Drop it, make a bad throw, or make a sound and you sit down. Last one standing wins."},
+  {e:"🔍", n:"Scavenger Hunt",          d:"The teacher calls out something to find in the room: 'something blue,' 'something that starts with S,' 'something round.' First person back to their seat holding it earns a point."},
+  {e:"🤥", n:"Two Truths & a Lie",      d:"Each student shares three statements about themselves: two true and one false. The class votes on which one is the lie. Surprise your friends!"},
+  {e:"🧘", n:"Stretch & Yoga",          d:"Students take turns leading the class in a stretch or yoga pose for 30 seconds each: tree pose, downward dog, toe touches, arm circles. Breathe and relax."},
+  {e:"📖", n:"One-Word Story",          d:"Sit in a circle and build a story one word at a time. Each person adds just one word. Try to make it to the end of a sentence without laughing!"},
+  {e:"❓", n:"20 Questions",            d:"One student secretly thinks of an animal, place, or object. The class can ask up to 20 yes-or-no questions to figure it out. Can you guess it before the questions run out?"},
+  {e:"🏀", n:"Trash Can Basketball",    d:"Crumple up scrap paper into balls. Set a trash can at the front and shoot from different lines on the floor. Farther lines are worth more points. Play to 21!"},
+  {e:"🪑", n:"Musical Chairs",          d:"Set up chairs in a circle, one fewer than players. The class claps and sings while everyone walks around. When the singing stops, grab a seat! Remove a chair each round."},
+  {e:"🧩", n:"Board Games & Puzzles",   d:"Free choice time! Grab a board game, card game, or puzzle with a small group. Teach a friend a new game. Be a good sport and clean up when you're done."},
+];
+// Edutopia palette, bright ones only
+const COLORS = ["#FF4C00","#0094C7","#FFBC0D","#6FB300","#E75CAE","#00AFAB","#A973DF","#FF9B0D","#4FD2FF","#F27179"];
+const MIDNIGHT = "#1D2A44", SUNSHINE = "#FFBC0D", ORANGE = "#FF4C00", CREAM = "#FFF7ED", PACIFIC = "#0094C7", SPACE = "#004861";
+
+/* ---------------- State ---------------- */
+const LS_KEY = "recessomatic.disabled";
+let disabled = new Set();
+try { disabled = new Set(JSON.parse(localStorage.getItem(LS_KEY) || "[]")); } catch(e) {}
+let muted = false;
+try { muted = localStorage.getItem("recessomatic.muted") === "1"; } catch(e) {}
+const active = () => ACTIVITIES.filter(a => !disabled.has(a.n));
+
+let rot = 0, spinning = false, winner = -1, kick = 0, celebrateUntil = 0;
+// render-resolution units (low-res, upscaled with pixelated scaling for the 16-bit look)
+let PX = 3, W = 0, H = 0, cx = 0, cy = 0, R = 0, D = 0, Wd = 0, drumTop = 0;
+
+/* ---------------- Canvas ---------------- */
+const canvas = document.getElementById("drum");
+const ctx = canvas.getContext("2d");
+const cCanvas = document.getElementById("confetti");
+const cctx = cCanvas.getContext("2d");
+let dither = null;
+
+function cssPx(name) { return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)); }
+
+function resize() {
+  PX = window.innerWidth > 1400 ? 3 : 2;
+  W = Math.round(window.innerWidth / PX); H = Math.round(window.innerHeight / PX);
+  for (const c of [canvas, cCanvas]) { c.width = W; c.height = H; }
+  ctx.imageSmoothingEnabled = false; cctx.imageSmoothingEnabled = false;
+  const leverW = cssPx("--lever-w") / PX;
+  drumTop = (cssPx("--marquee-h") + 8) / PX;
+  const availW = W - leverW;
+  const availH = H - drumTop;
+  cx = Math.round(availW / 2);
+  cy = Math.round(drumTop + availH / 2);
+  R = availH * 0.78;
+  D = R * 2.4;
+  Wd = availW * 0.94;
+  // 2x2 checker dither pattern for mid-depth shading
+  const p = document.createElement("canvas"); p.width = 2; p.height = 2;
+  const pc = p.getContext("2d"); pc.fillStyle = "#000000"; pc.fillRect(0, 0, 1, 1); pc.fillRect(1, 1, 1, 1);
+  dither = ctx.createPattern(p, "repeat");
+}
+window.addEventListener("resize", resize);
+resize();
+
+const seg = () => (Math.PI * 2) / Math.max(active().length, 1);
+function norm(a) { a = (a + Math.PI) % (Math.PI * 2); if (a < 0) a += Math.PI * 2; return a - Math.PI; }
+function project(a) { const z = R * (1 - Math.cos(a)); const f = D / (D + z); return { y: cy + R * Math.sin(a) * f, f }; }
+function frontIndex() {
+  const n = active().length; if (!n) return -1;
+  return ((Math.round(-rot / seg()) % n) + n) % n;
+}
+function pxFont(size) { return `${Math.max(6, Math.round(size))}px "Press Start 2P", monospace`; }
+function emojiFont(size) { return `${Math.round(size)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; }
+
+function draw(now) {
+  ctx.clearRect(0, 0, W, H);
+  const items = active(), n = items.length, sg = seg();
+  const panelH = sg * R;
+  const front = frontIndex();
+
+  // drum body: draw every front-facing panel as a trapezoid on the cylinder
+  const order = [];
+  for (let i = 0; i < n; i++) {
+    const mid = norm(i * sg + rot);
+    if (Math.cos(mid) <= 0.001) continue;
+    order.push({ i, mid });
+  }
+  order.sort((a, b) => Math.abs(b.mid) - Math.abs(a.mid)); // far edges first, center last
+
+  for (const { i, mid } of order) {
+    const a0 = Math.max(-Math.PI / 2, mid - sg / 2), a1 = Math.min(Math.PI / 2, mid + sg / 2);
+    const p0 = project(a0), p1 = project(a1);
+    const hw0 = (Wd / 2) * p0.f, hw1 = (Wd / 2) * p1.f;
+    ctx.beginPath();
+    ctx.moveTo(cx - hw0, p0.y); ctx.lineTo(cx + hw0, p0.y); ctx.lineTo(cx + hw1, p1.y); ctx.lineTo(cx - hw1, p1.y); ctx.closePath();
+    ctx.fillStyle = COLORS[i % COLORS.length]; ctx.fill();
+    const c = Math.cos(mid);
+    if (c < 0.45) { ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.fill(); }
+    else if (c < 0.8) { ctx.fillStyle = dither; ctx.fill(); }
+    // top bevel stripe (lighter) and bottom (darker) for the pixel look
+    ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.fillRect(cx - hw0, p0.y, hw0 * 2, Math.max(1, Math.round(panelH * 0.06 * p0.f * c)));
+    ctx.lineWidth = 2; ctx.strokeStyle = MIDNIGHT; ctx.stroke();
+
+    // label
+    const pm = project(mid);
+    ctx.save();
+    ctx.translate(cx, pm.y);
+    ctx.scale(pm.f, pm.f * c);
+    let fs = Math.min(18, Math.max(8, Math.round(panelH * 0.2)));
+    const em = fs * 1.6, gap = fs * 0.3;
+    ctx.font = pxFont(fs);
+    while (ctx.measureText(items[i].n).width + em + gap > Wd * 0.8 && fs > 6) { fs -= 1; ctx.font = pxFont(fs); }
+    const nameW = ctx.measureText(items[i].n).width;
+    const total = em + gap + nameW;
+    const x0 = -total / 2;
+    ctx.textBaseline = "middle";
+    ctx.font = emojiFont(em); ctx.textAlign = "left"; ctx.fillStyle = "#fff"; ctx.globalAlpha = 1;
+    ctx.fillText(items[i].e, x0, 1);
+    ctx.font = pxFont(fs);
+    ctx.fillStyle = MIDNIGHT;
+    ctx.fillText(items[i].n, x0 + em + gap + 2, 2);   // hard pixel shadow
+    ctx.fillStyle = "#fff";
+    ctx.fillText(items[i].n, x0 + em + gap, 0);
+    ctx.restore();
+  }
+
+  // housing posts on each side of the drum
+  const postW = Math.max(6, Math.round(W * 0.012));
+  for (const x of [cx - Wd / 2 - postW, cx + Wd / 2]) {
+    ctx.fillStyle = MIDNIGHT; ctx.fillRect(x - 2, drumTop, postW + 4, H - drumTop);
+    ctx.fillStyle = PACIFIC; ctx.fillRect(x, drumTop, postW, H - drumTop);
+    ctx.fillStyle = SPACE; ctx.fillRect(x + postW - 2, drumTop, 2, H - drumTop);
+    for (let y = drumTop + 6; y < H; y += 14) { ctx.fillStyle = "#4FD2FF"; ctx.fillRect(x + 2, y, postW - 4, 2); }
+  }
+
+  // selection window at the front
+  const winH = panelH * 1.0;
+  const blinkOn = Math.floor(now / 120) % 2 === 0;
+  const celebrating = !spinning && now < celebrateUntil;
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = MIDNIGHT; ctx.strokeRect(cx - Wd / 2 - 2, cy - winH / 2 - 2, Wd + 4, winH + 4);
+  ctx.strokeStyle = celebrating ? (blinkOn ? "#fff" : SUNSHINE) : SUNSHINE;
+  ctx.strokeRect(cx - Wd / 2, cy - winH / 2, Wd, winH);
+  // marquee bulbs along the window
+  const bulbs = Math.floor(Wd / 18);
+  for (let b = 0; b <= bulbs; b++) {
+    const bx = cx - Wd / 2 + (b / bulbs) * Wd;
+    const lit = (spinning || celebrating) ? ((b + Math.floor(now / 110)) % 2 === 0) : (b % 2 === 0);
+    ctx.fillStyle = lit ? "#FFF3C4" : "#8a6410";
+    ctx.fillRect(Math.round(bx) - 2, Math.round(cy - winH / 2) - 2, 4, 4);
+    ctx.fillRect(Math.round(bx) - 2, Math.round(cy + winH / 2) - 2, 4, 4);
+  }
+
+  // pointers (flap outward when a panel edge passes)
+  kick *= 0.8;
+  const k = Math.round(kick * 8);
+  const ah = Math.max(10, Math.round(panelH * 0.25)), aw = Math.round(ah * 0.9);
+  for (const dir of [1, -1]) {
+    const bx = dir === 1 ? cx - Wd / 2 - postW - 2 - k : cx + Wd / 2 + postW + 2 + k;
+    ctx.beginPath();
+    ctx.moveTo(bx, cy - ah); ctx.lineTo(bx, cy + ah); ctx.lineTo(bx + dir * aw, cy); ctx.closePath();
+    ctx.fillStyle = ORANGE; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = CREAM; ctx.stroke();
+    ctx.lineWidth = 1; ctx.strokeStyle = "#000"; ctx.stroke();
+  }
+}
+
+/* ---------------- Confetti (chunky pixels) ---------------- */
+let particles = [];
+function burst() {
+  particles = [];
+  for (let i = 0; i < 160; i++) {
+    particles.push({ x: cx + (Math.random() - 0.5) * Wd * 0.6, y: cy, vx: (Math.random() - 0.5) * 7, vy: -Math.random() * 7 - 2,
+      s: 2 + Math.floor(Math.random() * 3), c: COLORS[i % COLORS.length], life: 1 });
+  }
+}
+function drawConfetti() {
+  cctx.clearRect(0, 0, W, H);
+  if (!particles.length) return;
+  for (const p of particles) {
+    p.vy += 0.16; p.x += p.vx; p.y += p.vy; p.vx *= 0.99; p.life -= 0.007;
+    cctx.globalAlpha = p.life > 0.3 ? 1 : (Math.floor(p.life * 20) % 2 ? 1 : 0);
+    cctx.fillStyle = p.c; cctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
+  }
+  cctx.globalAlpha = 1;
+  particles = particles.filter(p => p.life > 0 && p.y < H + 10);
+}
+function loop(now) { draw(now); drawConfetti(); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+
+/* ---------------- Audio (chiptune) ---------------- */
+let actx = null;
+function ensureAudio() {
+  if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+  if (actx && actx.state === "suspended") actx.resume();
+}
+function beep(type, freq, t, dur, vol, slideTo) {
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(actx.destination);
+  o.start(t); o.stop(t + dur + 0.05);
+}
+function tickSound() { if (muted || !actx) return; beep("square", 1400, actx.currentTime, 0.05, 0.16, 900); }
+function clunkSound() { if (muted || !actx) return; beep("square", 160, actx.currentTime, 0.12, 0.2, 60); }
+function dingSound() {
+  if (muted || !actx) return;
+  const t = actx.currentTime;
+  // the ding: a bell made of sine partials
+  [[1760, 1, 1.6], [2637, 0.45, 1.1], [3520, 0.25, 0.7], [880, 0.3, 1.8]].forEach(([f, v, d]) => beep("sine", f, t, d, 0.35 * v));
+  // then a tiny 16-bit fanfare
+  [[523, 0], [659, 1], [784, 2], [1047, 3]].forEach(([f, i]) => beep("square", f, t + 0.3 + i * 0.09, 0.22, 0.09));
+}
+
+/* ---------------- Spin ---------------- */
+const leverWrap = document.getElementById("leverWrap");
+function spin() {
+  if (spinning || active().length < 2) return;
+  ensureAudio();
+  hideResult();
+  spinning = true; winner = -1;
+  leverWrap.classList.add("busy");
+  const start = rot;
+  const extra = (3 + Math.random() * 3) * Math.PI * 2 + Math.random() * Math.PI * 2;
+  const dur = 7000 + Math.random() * 2500;
+  const t0 = performance.now();
+  let last = frontIndex();
+  function frame(now) {
+    const p = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - p, 2.6);
+    rot = start + extra * e;
+    const idx = frontIndex();
+    if (idx !== last) { tickSound(); kick = 1; last = idx; }
+    if (p < 1) requestAnimationFrame(frame);
+    else { rot = -idx * seg() + Math.round((rot + idx * seg()) / (Math.PI * 2)) * Math.PI * 2; land(idx); }
+  }
+  requestAnimationFrame(frame);
+}
+function land(idx) {
+  spinning = false; winner = idx;
+  leverWrap.classList.remove("busy");
+  celebrateUntil = performance.now() + 4000;
+  dingSound(); burst();
+  const a = active()[idx];
+  setTimeout(() => showResult(a), 500);
+}
+
+/* ---------------- Result box ---------------- */
+const overlay = document.getElementById("overlay");
+function showResult(a) {
+  document.getElementById("rEmoji").textContent = a.e;
+  document.getElementById("rName").textContent = a.n.toUpperCase();
+  document.getElementById("rDesc").textContent = a.d;
+  overlay.classList.add("show");
+}
+function hideResult() { overlay.classList.remove("show"); }
+document.getElementById("playBtn").onclick = hideResult;
+document.getElementById("againBtn").onclick = () => { hideResult(); setTimeout(pullLeverAuto, 50); };
+overlay.addEventListener("click", e => { if (e.target === overlay) hideResult(); });
+
+/* ---------------- Lever ---------------- */
+const rod = document.getElementById("rod");
+const MAX_ANGLE = 105, MAX_DRAG = 220;
+let dragging = false, startY = 0, angle = 0, pulledEnough = false;
+function setAngle(a) { angle = Math.max(0, Math.min(MAX_ANGLE, a)); rod.style.setProperty("--a", angle + "deg"); }
+rod.addEventListener("pointerdown", e => {
+  if (spinning) return;
+  ensureAudio();
+  dragging = true; pulledEnough = false; startY = e.clientY;
+  rod.classList.remove("snap");
+  rod.setPointerCapture(e.pointerId);
+});
+rod.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  setAngle(((e.clientY - startY) / MAX_DRAG) * MAX_ANGLE);
+  if (angle >= MAX_ANGLE * 0.6) pulledEnough = true;
+});
+function releaseLever() {
+  if (!dragging) return;
+  dragging = false;
+  rod.classList.add("snap");
+  const fire = pulledEnough || angle >= MAX_ANGLE * 0.6;
+  if (!fire && angle < 12) { pullLeverAuto(); return; }   // a plain click pulls it too
+  setAngle(0);
+  if (fire) { clunkSound(); spin(); }
+}
+rod.addEventListener("pointerup", releaseLever);
+rod.addEventListener("pointercancel", releaseLever);
+function pullLeverAuto() {
+  if (spinning) return;
+  ensureAudio();
+  rod.classList.add("snap");
+  setAngle(MAX_ANGLE);
+  clunkSound();
+  setTimeout(() => { setAngle(0); spin(); }, 260);
+}
+document.addEventListener("keydown", e => {
+  if (e.code === "Space" || e.code === "Enter") {
+    if (document.activeElement && ["INPUT", "BUTTON"].includes(document.activeElement.tagName) && panel.classList.contains("open")) return;
+    e.preventDefault();
+    if (overlay.classList.contains("show")) hideResult();
+    pullLeverAuto();
+  }
+  if (e.code === "Escape") { hideResult(); panel.classList.remove("open"); }
+});
+
+/* ---------------- Teacher panel ---------------- */
+const panel = document.getElementById("panel");
+const list = document.getElementById("list");
+const muteBtn = document.getElementById("muteBtn");
+const warn = document.getElementById("warn");
+function saveDisabled() { try { localStorage.setItem(LS_KEY, JSON.stringify([...disabled])); } catch(e) {} }
+function renderList() {
+  list.innerHTML = "";
+  ACTIVITIES.forEach(a => {
+    const l = document.createElement("label");
+    if (disabled.has(a.n)) l.classList.add("off");
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !disabled.has(a.n);
+    cb.onchange = () => {
+      warn.textContent = "";
+      if (!cb.checked && active().length <= 2) { cb.checked = true; warn.textContent = "Keep at least 2 activities on!"; return; }
+      if (cb.checked) disabled.delete(a.n); else disabled.add(a.n);
+      l.classList.toggle("off", !cb.checked);
+      winner = -1; saveDisabled();
+    };
+    l.append(cb, document.createTextNode(`${a.e} ${a.n}`));
+    list.appendChild(l);
+  });
+}
+function renderMute() { muteBtn.textContent = muted ? "SOUND: OFF" : "SOUND: ON"; }
+muteBtn.onclick = () => { muted = !muted; renderMute(); try { localStorage.setItem("recessomatic.muted", muted ? "1" : "0"); } catch(e) {} };
+document.getElementById("allOn").onclick = () => { disabled.clear(); saveDisabled(); renderList(); winner = -1; warn.textContent = ""; };
+document.getElementById("gear").onclick = () => panel.classList.toggle("open");
+document.getElementById("closePanel").onclick = () => panel.classList.remove("open");
+document.getElementById("fs").onclick = () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen().catch(() => {});
+};
+renderList(); renderMute();
+</script>
+</body>
+</html>
