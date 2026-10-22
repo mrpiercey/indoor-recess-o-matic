@@ -131,6 +131,9 @@
   .slot.secret{background:var(--edu-midnight);color:var(--edu-sunshine)}
   @keyframes hit{0%{transform:scale(1.12)}100%{transform:none}}
   .join{flex-basis:100%;font-family:var(--pixel);font-size:clamp(12px,1.6vw,18px);color:var(--edu-dark-grey)}
+  .slots.pair{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center}
+  .slots.pair .slot{min-width:0;width:auto;max-width:none}
+  .slots.pair .join{flex-basis:auto;font-size:clamp(18px,3vw,36px);color:var(--edu-orange);text-shadow:3px 3px 0 var(--edu-midnight)}
   .big{font-family:var(--pixel);font-size:clamp(44px,10vw,112px);line-height:1.15;color:var(--edu-midnight);text-shadow:5px 5px 0 var(--edu-sunshine);margin:16px 0}
   .big.alert{color:var(--edu-orange);text-shadow:5px 5px 0 var(--edu-midnight);animation:blink .4s steps(2,end) infinite}
   .big.go{color:var(--edu-green);animation:bounce .5s steps(4) infinite alternate}
@@ -544,7 +547,7 @@ const L = {
 };
 const SCREENS = {
   "Speed Doodle":          {kind:"reel", lead:"Draw...", slots:[L.DOODLE_WHO, L.DOODLE_DO, L.DOODLE_WHERE], timer:60, hint:"Everyone draws the same thing. 60 seconds!"},
-  "Would You Rather":      {kind:"reel", lead:"Would you rather...", slots:[L.WYR_A, L.WYR_B], join:"or", suffix:"?", hint:"Left side of the room for the first one, right side for the second."},
+  "Would You Rather":      {kind:"reel", lead:"Would you rather...", slots:[L.WYR_A, L.WYR_B], join:"OR", hint:"Left side of the room for the first one, right side for the second."},
   "Charades":              {kind:"reel", lead:"Act out...", slots:[L.CHARADES], secret:true, timer:60, hint:"Tap HIDE once the actor has seen it."},
   "Whiteboard Pictionary": {kind:"reel", lead:"Draw...", slots:[L.PICT], secret:true, timer:60, hint:"Tap HIDE once the artist has seen it."},
   "Scavenger Hunt":        {kind:"reel", lead:"Find something...", slots:[L.SCAV], timer:30, hint:"First one back in their seat holding it wins the point."},
@@ -620,7 +623,7 @@ function makeCountdown(seconds, onDone) {
 /* --- Reel: slot-machine word picker --- */
 function buildReel(s) {
   const lead = el("div", "lead", s.lead); gameBox.appendChild(lead);
-  const row = el("div", "slots"); gameBox.appendChild(row);
+  const row = el("div", s.join ? "slots pair" : "slots"); gameBox.appendChild(row);
   const slots = s.slots.map((list, k) => {
     if (k > 0 && s.join) row.appendChild(el("span", "join", s.join));
     const d = el("div", "slot", "?"); d._list = list; d._word = ""; row.appendChild(d); return d;
@@ -634,7 +637,8 @@ function buildReel(s) {
       for (const w of d._list) { d.textContent = w; maxW = Math.max(maxW, d.offsetWidth); maxH = Math.max(maxH, d.offsetHeight); }
       d.textContent = "? ? ?"; maxW = Math.max(maxW, d.offsetWidth); maxH = Math.max(maxH, d.offsetHeight);
       d.textContent = "?";
-      d.style.width = maxW + "px"; d.style.minHeight = maxH + "px";
+      if (!s.join) d.style.width = maxW + "px";
+      d.style.minHeight = maxH + "px";
     });
   }
   sizeSlots();
