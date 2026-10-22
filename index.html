@@ -35,8 +35,8 @@
   /* ---------- Marquee ---------- */
   #marquee{position:fixed;left:0;top:0;right:var(--lever-w);height:var(--marquee-h);z-index:5;
     background:var(--edu-midnight);border-bottom:4px solid var(--edu-sunshine);
-    display:flex;align-items:center;gap:18px;padding:0 20px}
-  #marquee img{width:44px;height:44px;image-rendering:auto;border:3px solid var(--edu-cream);background:#fff}
+    display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 20px 0 14px}
+  #marquee img{width:44px;height:44px;image-rendering:auto;border:3px solid var(--edu-cream);background:#fff;flex-shrink:0}
   #marquee h1{margin:0;font-family:var(--pixel);font-size:clamp(13px,1.9vw,27px);line-height:1.2;color:var(--edu-sunshine);
     text-shadow:3px 3px 0 var(--edu-orange),6px 6px 0 #000}
   #marquee p{margin:0;font-size:clamp(16px,1.7vw,26px);line-height:1;color:var(--edu-tech);letter-spacing:1px}
@@ -168,11 +168,11 @@
 <div id="scanlines"></div>
 
 <div id="marquee">
-  <img src="edu_bug.png" alt="edu">
   <div class="txt">
     <h1>INDOOR RECESS-O-MATIC</h1>
     <p>PULL THE LEVER &bull; PLAY THE GAME &bull; 20 SCREEN-FREE INDOOR RECESS ACTIVITIES</p>
   </div>
+  <img src="edu_bug.png" alt="edu">
 </div>
 <div id="ribbon"></div>
 
