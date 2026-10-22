@@ -113,6 +113,36 @@
   #panel .note{padding:10px 20px 14px;font-size:19px;line-height:1.15;color:var(--edu-tech);border-top:4px solid var(--edu-pacific)}
   #panel .warn{color:var(--edu-sunshine);min-height:1.2em}
 
+
+  /* ---------- Game helper screens ---------- */
+  #gameOverlay{position:fixed;inset:0;z-index:25;display:none;align-items:center;justify-content:center;background:#000a}
+  #gameOverlay.show{display:flex}
+  #gameBox{width:min(960px,92vw);max-height:90vh;overflow:auto;background:var(--edu-cream);color:var(--edu-midnight);
+    border:6px solid var(--edu-midnight);outline:6px solid var(--edu-cream);box-shadow:0 0 0 12px var(--edu-midnight),14px 14px 0 12px #000;
+    padding:26px 30px 24px;text-align:center}
+  .gtitle{font-family:var(--pixel);font-size:clamp(14px,2.2vw,24px);color:var(--edu-orange);margin-bottom:12px}
+  .lead{font-family:var(--pixel);font-size:clamp(12px,1.6vw,18px);line-height:1.5;color:var(--edu-pacific);margin:10px 0;min-height:1.5em}
+  .lead.trick{color:var(--edu-pink)}
+  .slots{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin:12px 0}
+  .slot{font-family:var(--pixel);font-size:clamp(12px,1.9vw,22px);line-height:1.5;background:#fff;border:4px solid var(--edu-midnight);
+    box-shadow:5px 5px 0 var(--edu-midnight);padding:14px 18px;min-width:160px;max-width:100%}
+  .slot.spin{background:var(--edu-sunshine)}
+  .slot.hit{background:var(--edu-light-green);animation:hit .3s steps(3)}
+  .slot.secret{background:var(--edu-midnight);color:var(--edu-sunshine)}
+  @keyframes hit{0%{transform:scale(1.12)}100%{transform:none}}
+  .join{font-family:var(--pixel);font-size:clamp(12px,1.6vw,18px);color:var(--edu-dark-grey)}
+  .big{font-family:var(--pixel);font-size:clamp(44px,10vw,112px);line-height:1.15;color:var(--edu-midnight);text-shadow:5px 5px 0 var(--edu-sunshine);margin:16px 0}
+  .big.alert{color:var(--edu-orange);text-shadow:5px 5px 0 var(--edu-midnight);animation:blink .4s steps(2,end) infinite}
+  .big.go{color:var(--edu-green);animation:bounce .5s steps(4) infinite alternate}
+  @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-14px)}}
+  .gtimer{font-family:var(--pixel);font-size:clamp(28px,5vw,56px);color:var(--edu-midnight);margin:12px 0 4px;min-height:1.2em}
+  .gtimer.warn{color:var(--edu-orange)}
+  .gtimer.done{color:var(--edu-orange);animation:blink .4s steps(2,end) infinite}
+  .gsub{font-size:clamp(18px,2vw,24px);line-height:1.2;color:var(--edu-dark-grey);margin:6px 0}
+  .gbtns{margin-top:14px}
+  .btn.small{font-size:12px;padding:10px 14px}
+  .btn:disabled{opacity:.45;cursor:default;transform:none;box-shadow:5px 5px 0 var(--edu-midnight)}
+
   @media (max-width:760px){
     :root{--lever-w:120px;--marquee-h:66px}
     #leverInner{height:330px}
@@ -153,12 +183,14 @@
   <div id="card">
     <div class="kicker">&#9654; TODAY'S GAME IS...</div>
     <div class="emoji" id="rEmoji">🎉</div>
-    <h2 id="rName">Freeze Dance</h2>
+    <h2 id="rName">Hot Potato</h2>
     <p id="rDesc"></p>
     <button class="btn primary" id="playBtn">LET'S PLAY!</button>
     <button class="btn secondary" id="againBtn">SPIN AGAIN</button>
   </div>
 </div>
+
+<div id="gameOverlay"><div id="gameBox"></div></div>
 
 <button id="gear" class="hud">&#9881; TEACHER</button>
 <button id="fs" class="hud">&#9974; FULLSCREEN</button>
@@ -176,7 +208,7 @@
 <script>
 /* ---------------- Activities ---------------- */
 const ACTIVITIES = [
-  {e:"🕺", n:"Freeze Dance",            d:"One student is the DJ and sings or claps a beat. Everyone dances, and when the beat stops, FREEZE! Anyone caught moving sits out until the next round."},
+  {e:"🥔", n:"Hot Potato",              d:"Sit in a circle and pass a soft ball (the potato) as fast as you can while the beat plays. When the buzzer sounds, whoever is holding the potato is out. Last player left wins!"},
   {e:"🔢", n:"Four Corners",            d:"Number the four corners of the room. The caller closes their eyes and counts to ten while everyone sneaks to a corner. The caller names a corner, and anyone standing there is out."},
   {e:"👍", n:"Heads Up, 7 Up",          d:"Seven students stand at the front. Everyone else puts their head down with a thumb up. The seven each secretly press one thumb. Heads up! Guess who picked you."},
   {e:"🎭", n:"Charades",                d:"Act out an animal, movie, job, or book character with no talking. The class guesses. Whoever guesses right acts out the next one."},
@@ -193,7 +225,7 @@ const ACTIVITIES = [
   {e:"🧘", n:"Stretch & Yoga",          d:"Students take turns leading the class in a stretch or yoga pose for 30 seconds each: tree pose, downward dog, toe touches, arm circles. Breathe and relax."},
   {e:"📖", n:"One-Word Story",          d:"Sit in a circle and build a story one word at a time. Each person adds just one word. Try to make it to the end of a sentence without laughing!"},
   {e:"❓", n:"20 Questions",            d:"One student secretly thinks of an animal, place, or object. The class can ask up to 20 yes-or-no questions to figure it out. Can you guess it before the questions run out?"},
-  {e:"🏀", n:"Trash Can Basketball",    d:"Crumple up scrap paper into balls. Set a trash can at the front and shoot from different lines on the floor. Farther lines are worth more points. Play to 21!"},
+  {e:"🗑️", n:"Mystery Trash",           d:"The teacher secretly picks one piece of trash or clutter on the floor as the Mystery Trash. Everyone cleans up as fast as they can. Whoever picks up the mystery item wins a prize!"},
   {e:"🪑", n:"Musical Chairs",          d:"Set up chairs in a circle, one fewer than players. The class claps and sings while everyone walks around. When the singing stops, grab a seat! Remove a chair each round."},
   {e:"🧩", n:"Board Games & Puzzles",   d:"Free choice time! Grab a board game, card game, or puzzle with a small group. Teach a friend a new game. Be a good sport and clean up when you're done."},
 ];
@@ -432,14 +464,17 @@ function land(idx) {
 
 /* ---------------- Result box ---------------- */
 const overlay = document.getElementById("overlay");
+let currentResult = null;
 function showResult(a) {
+  currentResult = a;
+  document.getElementById("playBtn").textContent = SCREENS[a.n] ? "LET'S PLAY! \u25B6" : "LET'S PLAY!";
   document.getElementById("rEmoji").textContent = a.e;
   document.getElementById("rName").textContent = a.n.toUpperCase();
   document.getElementById("rDesc").textContent = a.d;
   overlay.classList.add("show");
 }
 function hideResult() { overlay.classList.remove("show"); }
-document.getElementById("playBtn").onclick = hideResult;
+document.getElementById("playBtn").onclick = () => { if (!currentResult || !openScreen(currentResult.n)) hideResult(); };
 document.getElementById("againBtn").onclick = () => { hideResult(); setTimeout(pullLeverAuto, 50); };
 overlay.addEventListener("click", e => { if (e.target === overlay) hideResult(); });
 
@@ -481,13 +516,245 @@ function pullLeverAuto() {
 }
 document.addEventListener("keydown", e => {
   if (e.code === "Space" || e.code === "Enter") {
+    if (screenOpen) { e.preventDefault(); if (screenAction) screenAction(); return; }
     if (document.activeElement && ["INPUT", "BUTTON"].includes(document.activeElement.tagName) && panel.classList.contains("open")) return;
     e.preventDefault();
     if (overlay.classList.contains("show")) hideResult();
     pullLeverAuto();
   }
-  if (e.code === "Escape") { hideResult(); panel.classList.remove("open"); }
+  if (e.code === "Escape") { if (screenOpen) { closeScreen(); return; } hideResult(); panel.classList.remove("open"); }
 });
+
+
+/* ---------------- Game helper screens ---------------- */
+const L = {
+  DOODLE_WHO: ["a dragon","a penguin","a robot","your teacher","a pirate","a giant hamster","a wizard","a ninja","a T-rex","a unicorn","a snowman","a grumpy cat","a superhero","an alien","a monkey","a mermaid","a knight","a giraffe","a shark","a baby elephant","a chef","an astronaut","a ghost","a bumblebee","a skateboarding dog","a king","a frog","a zombie","a polar bear","a tiny dinosaur"],
+  DOODLE_DO: ["riding a skateboard","eating spaghetti","playing the drums","flying a kite","doing a cartwheel","baking a cake","juggling pizzas","driving a school bus","taking a selfie","surfing a wave","reading a giant book","dancing ballet","climbing a mountain","playing basketball","brushing their teeth","riding a bicycle","singing karaoke","building a sandcastle","walking a tightrope","painting a picture","playing video games","having a tea party","jumping on a trampoline","sleeping in a hammock","going fishing","lifting weights","wearing roller skates","playing soccer","blowing bubbles","eating a giant taco"],
+  DOODLE_WHERE: ["on the moon","in a swimming pool","at a birthday party","inside a volcano","in the school cafeteria","under the sea","on top of a skyscraper","in a haunted house","at the beach","in a jungle","during a snowstorm","in outer space","on a pirate ship","in a candy store","at the zoo","in a bathtub","on a desert island","at the North Pole","in a castle","on a farm","in a spooky forest","at a rock concert","in the principal's office","on a rainbow","in a giant shoe","at a circus","in a treehouse","in a hot air balloon","in a library","at a football stadium"],
+  WYR_A: ["have wings","be invisible","talk to animals","have a pet dinosaur","live in a treehouse","eat pizza every day","be ten feet tall","never sleep again","have a robot do your homework","be the fastest runner in the world","breathe underwater","time travel to the past","have a magic carpet","be a famous singer","live on a boat","have super strength","only whisper forever","have a pool full of jelly beans","be able to fly","have a dragon for a pet","live in a castle","never have homework again","be a wizard","have a giant trampoline room","be able to read minds","have a pet monkey","be a superhero","eat ice cream for breakfast","have a secret underground base","be the principal for a day"],
+  WYR_B: ["have a tail","be super tiny","speak every language","have a pet shark","live in a cave","eat tacos every day","be as small as a mouse","never eat candy again","have a robot do your chores","be the strongest person in the world","walk on clouds","time travel to the future","have a flying car","be a famous athlete","live on a spaceship","have super speed","only shout forever","have a bathtub full of chocolate pudding","be able to teleport","have a unicorn for a pet","live in a submarine","never have a bedtime again","be a ninja","have a room full of puppies","be able to freeze time","have a pet penguin","be a movie star","eat cake for dinner","have a secret treehouse lab","be the teacher for a day"],
+  CHARADES: ["a monkey","a penguin","a chicken","a snake","a ballerina","a firefighter","brushing your teeth","a basketball player","a crying baby","a robot","a kangaroo","a surfer","a rock star","a ninja","a chef cooking","a sleepy cat","a dinosaur","a superhero flying","a gorilla","a frog","a doctor","a swimmer","an elephant","a tightrope walker","a zombie","a bee","a pirate","an astronaut","a dog digging a hole","a drummer"],
+  PICT: ["a rainbow","a pizza","a dinosaur","a castle","a rocket ship","an umbrella","a snowman","a bicycle","an octopus","a school bus","a birthday cake","a volcano","a giraffe","an ice cream cone","a treasure chest","a lighthouse","a butterfly","a robot","a hot dog","a roller coaster","an elephant","a pirate ship","a tornado","a hamburger","a dragon","a skateboard","a campfire","a spider web","a mermaid","a flashlight"],
+  SCAV: ["blue","red","round","soft","that starts with the letter B","that starts with the letter S","with a zipper","made of wood","made of metal","smaller than your hand","with words on it","with numbers on it","that smells good","that makes noise","bumpy","smooth","shiny","green","yellow","you can write with","you can wear","that has a button","striped","that opens and closes","bigger than your head","with a picture of an animal","square","that bends","with a circle on it","orange"],
+  SIMON: ["touch your toes","hop on one foot","pat your head","spin around","clap three times","wiggle your fingers","flap like a bird","stand like a flamingo","make a silly face","touch your nose","do five jumping jacks","stomp your feet","pretend to swim","roar like a lion","tiptoe in place","give yourself a hug","point to the ceiling","march in place","wave both hands","pretend to sleep","jump up high","rub your tummy","do a robot dance","shake like jelly","pretend to drive a car","touch your knees","balance on one foot","run in slow motion","sit criss-cross","freeze like a statue"],
+  TEL_WHO: ["My grandma","The principal","A purple elephant","Our class hamster","A ninja","The lunch lady","A sleepy dragon","My neighbor's cat","The tooth fairy","A giant robot","The school bus driver","A talking banana","My little brother","A friendly monster","The mail carrier","A pirate captain","A dancing penguin","The librarian","An alien","A magic frog","Our gym teacher","A wizard","The janitor","A singing cow","My best friend","A superhero","A baby goat","A queen","A snowman","A tiny mouse"],
+  TEL_DID: ["ate forty pancakes","danced on the roof","lost a purple sock","rode a camel to school","sang opera","built a spaghetti castle","found a golden toothbrush","juggled seven watermelons","painted the moon green","tickled a crocodile","sneezed really loud","hid under the couch","baked a cake shaped like a shoe","wore pajamas","tripped over a pickle","taught a goldfish to whistle","slipped on a banana peel","drove a tiny car","wrote a poem about broccoli","won a hopping contest","lost both shoes","hiccupped for an hour","rode a unicycle","told a terrible joke","whispered to a tomato","bounced a watermelon","knitted a sweater for a giraffe","ate ice cream with a fork","did a cartwheel","invented a new sandwich"],
+  TEL_WHERE: ["at the grocery store","on a Tuesday","during the spelling test","in the swimming pool","behind the bowling alley","at midnight","on top of a mountain","in the library","at the dentist","while wearing a tutu","on the way to Mars","in a rainstorm","at the zoo","under the kitchen table","at the birthday party","in a hot air balloon","at the North Pole","on the playground","in a jar of pickles","at the car wash","during lunch","on a bouncy castle","inside a giant pumpkin","at the beach","on a roller coaster","in the principal's office","in my backpack","at the movie theater","on a submarine","on a very windy day"],
+  YOGA: ["Tree Pose","Downward Dog","Cat Stretch","Cow Stretch","Mountain Pose","Warrior Pose","Child's Pose","Cobra Pose","Butterfly Stretch","Toe Touch","Arm Circles","Neck Rolls","Side Bend Left","Side Bend Right","Flamingo Balance","Chair Pose","Bridge Pose","Star Pose","Airplane Pose","Frog Squat","Shoulder Shrugs","Reach for the Sky","Seated Twist","Happy Baby","Triangle Pose","Boat Pose","Wrist Circles","Ankle Circles","Calf Stretch","Deep Breathing"],
+  TWENTY: ["an elephant","a pizza","a school bus","the moon","a toothbrush","a dolphin","a pencil","a snowman","a rainbow","a volcano","a bicycle","a giraffe","a birthday cake","a guitar","the ocean","a fire truck","a penguin","a basketball","a library","a dinosaur","a trampoline","a cactus","a lighthouse","a kangaroo","an umbrella","a roller coaster","a robot","a pumpkin","a submarine","a butterfly"],
+};
+const SCREENS = {
+  "Speed Doodle":          {kind:"reel", lead:"Draw...", slots:[L.DOODLE_WHO, L.DOODLE_DO, L.DOODLE_WHERE], timer:60, hint:"Everyone draws the same thing. 60 seconds!"},
+  "Would You Rather":      {kind:"reel", lead:"Would you rather...", slots:[L.WYR_A, L.WYR_B], join:"or", suffix:"?", hint:"Left side of the room for the first one, right side for the second."},
+  "Charades":              {kind:"reel", lead:"Act out...", slots:[L.CHARADES], secret:true, timer:60, hint:"Only the actor looks! Tap SHOW when the class looks away."},
+  "Whiteboard Pictionary": {kind:"reel", lead:"Draw...", slots:[L.PICT], secret:true, timer:60, hint:"Only the artist looks! Tap SHOW when the class looks away."},
+  "Scavenger Hunt":        {kind:"reel", lead:"Find something...", slots:[L.SCAV], timer:30, hint:"First one back in their seat holding it wins the point."},
+  "Simon Says":            {kind:"reel", lead:"...", slots:[L.SIMON], simon:true, hint:"Watch out! Sometimes Simon didn't say."},
+  "Telephone":             {kind:"reel", lead:"Whisper this...", slots:[L.TEL_WHO, L.TEL_DID, L.TEL_WHERE], secret:true, hint:"Only the first person in the circle looks!"},
+  "Stretch & Yoga":        {kind:"reel", lead:"Hold this pose...", slots:[L.YOGA], timer:30, hint:"Hold it for 30 seconds. Breathe!"},
+  "20 Questions":          {kind:"reel", lead:"The secret thing is...", slots:[L.TWENTY], secret:true, hint:"Only the person answering looks! The class gets 20 yes-or-no questions."},
+  "Hot Potato":            {kind:"random", go:"PASS!", stop:"STOP!", min:6, max:20, hint:"Pass the potato until the buzzer. Holding it when it stops? You're out!"},
+  "Musical Chairs":        {kind:"random", go:"WALK!", stop:"SIT!", min:8, max:25, hint:"Walk around the chairs until the buzzer. Grab a seat!"},
+  "Four Corners":          {kind:"corners", hint:"Pick a corner before the countdown ends!"},
+  "Human Knot":            {kind:"stopwatch", hint:"How fast can the class untangle? Try to beat your time."},
+  "Mystery Trash":         {kind:"countdown", seconds:120, hint:"Teacher: secretly pick the mystery item first. Then start the clock!"},
+};
+
+const gameOverlay = document.getElementById("gameOverlay");
+const gameBox = document.getElementById("gameBox");
+let screenOpen = false, screenAction = null, screenTimers = [], screenIntervals = [];
+function later(fn, ms) { const id = setTimeout(fn, ms); screenTimers.push(id); return id; }
+function every(fn, ms) { const id = setInterval(fn, ms); screenIntervals.push(id); return id; }
+function clearScreenTimers() { screenTimers.forEach(clearTimeout); screenIntervals.forEach(clearInterval); screenTimers = []; screenIntervals = []; }
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function btn(label, cls, fn) { const b = el("button", "btn " + cls, label); b.onclick = fn; return b; }
+function pick(list, not) { let w; do { w = list[Math.floor(Math.random() * list.length)]; } while (w === not && list.length > 1); return w; }
+function fmtTime(sec) { return sec >= 60 ? `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}` : String(sec); }
+
+function openScreen(name) {
+  const s = SCREENS[name]; if (!s) return false;
+  ensureAudio(); hideResult();
+  clearScreenTimers(); screenAction = null; screenOpen = true;
+  gameBox.innerHTML = "";
+  gameBox.appendChild(el("div", "gtitle", name.toUpperCase()));
+  if (s.hint) gameBox.appendChild(el("div", "gsub", s.hint));
+  ({ reel: buildReel, random: buildRandom, corners: buildCorners, stopwatch: buildStopwatch, countdown: buildCountdown })[s.kind](s);
+  gameOverlay.classList.add("show");
+  return true;
+}
+function closeScreen() { screenOpen = false; screenAction = null; clearScreenTimers(); gameOverlay.classList.remove("show"); gameBox.innerHTML = ""; }
+gameOverlay.addEventListener("click", e => { if (e.target === gameOverlay) closeScreen(); });
+
+/* --- extra sounds (same quiet family as the wheel) --- */
+function slotStopSound() { if (muted || !actx) return; const t = actx.currentTime; beep("sine", 1320, t, 0.25, 0.25); beep("sine", 2640, t, 0.12, 0.08); }
+function countBeep(hi) { if (muted || !actx) return; beep("square", hi ? 1320 : 880, actx.currentTime, 0.07, 0.08); }
+function tapSound(up) { if (muted || !actx) return; beep("square", up ? 660 : 330, actx.currentTime, 0.06, 0.1); }
+function buzzer() {
+  if (muted || !actx) return;
+  const t = actx.currentTime;
+  beep("sawtooth", 180, t, 0.6, 0.25, 110); beep("square", 90, t, 0.6, 0.15, 60);
+}
+function metronome() { if (muted || !actx) return; beep("square", 440, actx.currentTime, 0.04, 0.05); }
+
+/* --- countdown widget used by several screens --- */
+function makeCountdown(seconds, onDone) {
+  const wrap = el("div");
+  const disp = el("div", "gtimer", fmtTime(seconds));
+  const start = btn("START " + fmtTime(seconds) + (seconds >= 60 ? " TIMER" : " SEC TIMER"), "secondary small", () => run());
+  wrap.append(disp, start);
+  let left = seconds;
+  function run() {
+    ensureAudio(); clearCountdown();
+    left = seconds; disp.textContent = fmtTime(left); disp.className = "gtimer"; start.disabled = true;
+    wrap._iv = every(() => {
+      left--;
+      if (left <= 0) { clearInterval(wrap._iv); disp.textContent = "TIME'S UP!"; disp.classList.add("done"); buzzer(); start.disabled = false; start.textContent = "AGAIN"; onDone && onDone(); return; }
+      disp.textContent = fmtTime(left);
+      if (left <= 5) disp.classList.add("warn");
+      countBeep(left <= 3);
+    }, 1000);
+  }
+  function clearCountdown() { if (wrap._iv) clearInterval(wrap._iv); }
+  wrap.run = run; wrap.stop = clearCountdown;
+  return wrap;
+}
+
+/* --- Reel: slot-machine word picker --- */
+function buildReel(s) {
+  const lead = el("div", "lead", s.lead); gameBox.appendChild(lead);
+  const row = el("div", "slots"); gameBox.appendChild(row);
+  const slots = s.slots.map((list, k) => {
+    if (k > 0 && s.join) row.appendChild(el("span", "join", s.join));
+    const d = el("div", "slot", "?"); d._list = list; d._word = ""; row.appendChild(d); return d;
+  });
+  if (s.suffix) row.appendChild(el("span", "join", s.suffix));
+  let timer = null;
+  if (s.timer) { timer = makeCountdown(s.timer); gameBox.appendChild(timer); }
+  const btns = el("div", "gbtns"); gameBox.appendChild(btns);
+  const go = btn("GO!", "primary", roll);
+  const show = btn("SHOW", "secondary", toggleSecret); show.style.display = "none";
+  const done = btn("DONE", "secondary small", closeScreen);
+  btns.append(go, show, done);
+  let revealed = false, rolling = false;
+  screenAction = roll;
+
+  function toggleSecret() {
+    revealed = !revealed;
+    slots.forEach(d => { d.textContent = revealed ? d._word : "? ? ?"; d.classList.toggle("secret", !revealed); });
+    show.textContent = revealed ? "HIDE" : "SHOW";
+    tapSound(revealed);
+  }
+  function roll() {
+    if (rolling) return;
+    ensureAudio(); rolling = true; go.disabled = true; show.style.display = "none"; revealed = false;
+    if (timer) timer.stop();
+    lead.className = "lead"; lead.textContent = s.simon ? "..." : s.lead;
+    let remaining = slots.length;
+    slots.forEach((d, k) => {
+      d.className = "slot spin";
+      const total = 14 + k * 7; let step = 0, wait = 70, last = "";
+      (function tickStep() {
+        const w = pick(d._list, last); last = w;
+        d.textContent = w; tickSound(); step++;
+        if (step < total) { wait = Math.min(wait * 1.11, 320); later(tickStep, wait); return; }
+        d._word = w; d.className = "slot hit"; slotStopSound();
+        if (s.secret) { d.textContent = "? ? ?"; d.classList.add("secret"); }
+        if (--remaining === 0) later(finish, 250);
+      })();
+    });
+  }
+  function finish() {
+    dingSound(); rolling = false; go.disabled = false; go.textContent = "NEW ONE";
+    if (s.secret) show.style.display = "";
+    if (s.simon) {
+      const trick = Math.random() < 0.3;
+      lead.textContent = trick ? "(Simon didn't say!)" : "Simon says...";
+      lead.className = trick ? "lead trick" : "lead";
+    }
+  }
+}
+
+/* --- Random-stop timer (Hot Potato, Musical Chairs) --- */
+function buildRandom(s) {
+  const big = el("div", "big", "READY?"); gameBox.appendChild(big);
+  const btns = el("div", "gbtns"); gameBox.appendChild(btns);
+  const go = btn("GO!", "primary", start);
+  btns.append(go, btn("DONE", "secondary small", closeScreen));
+  let running = false;
+  screenAction = start;
+  function start() {
+    if (running) return;
+    ensureAudio(); running = true; go.disabled = true;
+    big.textContent = s.go; big.className = "big go";
+    const beat = every(metronome, 500);
+    const ms = (s.min + Math.random() * (s.max - s.min)) * 1000;
+    later(() => {
+      clearInterval(beat); buzzer();
+      big.textContent = s.stop; big.className = "big alert";
+      running = false; go.disabled = false; go.textContent = "AGAIN";
+    }, ms);
+  }
+}
+
+/* --- Four Corners --- */
+function buildCorners(s) {
+  const big = el("div", "big", "1 2 3 4"); gameBox.appendChild(big);
+  const sub = el("div", "gsub", "Count down, sneak to a corner, then see which corner gets called."); gameBox.appendChild(sub);
+  const btns = el("div", "gbtns"); gameBox.appendChild(btns);
+  const go = btn("COUNT DOWN", "primary", start);
+  btns.append(go, btn("DONE", "secondary small", closeScreen));
+  let running = false;
+  screenAction = start;
+  function start() {
+    if (running) return;
+    ensureAudio(); running = true; go.disabled = true; big.className = "big";
+    let n = 10; big.textContent = n; countBeep(false);
+    const iv = every(() => {
+      n--;
+      if (n > 0) { big.textContent = n; countBeep(n <= 3); return; }
+      clearInterval(iv);
+      let step = 0, wait = 80, last = 0;
+      (function spinCorner() {
+        let c; do { c = 1 + Math.floor(Math.random() * 4); } while (c === last); last = c;
+        big.textContent = "CORNER " + c; tickSound(); step++;
+        if (step < 16) { wait = Math.min(wait * 1.14, 400); later(spinCorner, wait); return; }
+        big.className = "big alert"; dingSound();
+        running = false; go.disabled = false; go.textContent = "AGAIN";
+      })();
+    }, 1000);
+  }
+}
+
+/* --- Stopwatch (Human Knot) --- */
+function buildStopwatch(s) {
+  const big = el("div", "big", "0:00"); gameBox.appendChild(big);
+  const best = el("div", "gsub", ""); gameBox.appendChild(best);
+  const btns = el("div", "gbtns"); gameBox.appendChild(btns);
+  const go = btn("START", "primary", toggle);
+  const reset = btn("RESET", "secondary", () => { stop(); elapsed = 0; big.textContent = "0:00"; tapSound(false); });
+  btns.append(go, reset, btn("DONE", "secondary small", closeScreen));
+  let running = false, elapsed = 0, iv = null, bestTime = null;
+  screenAction = toggle;
+  function toggle() { running ? stop(true) : start(); }
+  function start() {
+    ensureAudio(); running = true; go.textContent = "STOP"; tapSound(true);
+    iv = every(() => { elapsed++; big.textContent = fmtTime(elapsed).includes(":") ? fmtTime(elapsed) : "0:" + String(elapsed).padStart(2, "0"); metronome(); }, 1000);
+  }
+  function stop(finished) {
+    if (iv) clearInterval(iv); iv = null; running = false; go.textContent = "START";
+    if (finished && elapsed > 0) { dingSound(); if (bestTime === null || elapsed < bestTime) { bestTime = elapsed; best.textContent = "NEW BEST TIME: " + big.textContent; } }
+  }
+}
+
+/* --- Plain countdown (Mystery Trash) --- */
+function buildCountdown(s) {
+  const cd = makeCountdown(s.seconds, () => burst());
+  cd.querySelector(".gtimer").classList.add("big");
+  gameBox.appendChild(cd);
+  const btns = el("div", "gbtns"); gameBox.appendChild(btns);
+  btns.append(btn("DONE", "secondary small", closeScreen));
+  screenAction = cd.run;
+}
 
 /* ---------------- Teacher panel ---------------- */
 const panel = document.getElementById("panel");
