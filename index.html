@@ -223,7 +223,7 @@ const ACTIVITIES = [
   {e:"📞", n:"Telephone",               d:"Sit in a circle. The first person whispers a sentence to their neighbor, who passes it on. The last person says it out loud. See how silly it got!"},
   {e:"✊", n:"Rock Paper Scissors",      d:"Find a partner and play. The loser becomes the winner's biggest cheerleader and follows them to the next match. Keep going until one champion has the whole class cheering!"},
   {e:"🤫", n:"Silent Ball",             d:"Everyone stands on or beside their desk. Toss a soft ball around the room in total silence. Drop it, make a bad throw, or make a sound and you sit down. Last one standing wins."},
-  {e:"🦁", n:"Sleeping Lions",          d:"Everyone lies on the floor as still and quiet as a sleeping lion. One or two zookeepers tiptoe around telling jokes and making silly faces to wake the lions up, with no touching allowed. Any lion who giggles or wiggles becomes a zookeeper too. The last lion still sleeping wins!"},
+  {e:"📚", n:"Book Tasting",            d:"Spread books around the room like a menu. Everyone picks one and reads quietly for three minutes to taste it. When the chime rings, pass your book to the next person and taste a new one. At the end, pick your favorite to keep reading!"},
   {e:"🤥", n:"Two Truths & a Lie",      d:"Each student shares three statements about themselves: two true and one false. The class votes on which one is the lie. Surprise your friends!"},
   {e:"🧘", n:"Stretch & Yoga",          d:"Students take turns leading the class in a stretch or yoga pose for 30 seconds each: tree pose, downward dog, toe touches, arm circles. Breathe and relax."},
   {e:"📖", n:"One-Word Story",          d:"Sit in a circle and build a story one word at a time. Each person adds just one word. Try to make it to the end of a sentence without laughing!"},
@@ -549,7 +549,7 @@ const SCREENS = {
   "Would You Rather":      {kind:"reel", lead:"Would you rather...", slots:[L.WYR_A, L.WYR_B], join:"OR", hint:"Left side of the room for the first one, right side for the second."},
   "Charades":              {kind:"reel", lead:"Act out...", slots:[L.CHARADES], secret:true, timer:60, hint:"Tap HIDE once the actor has seen it."},
   "Whiteboard Pictionary": {kind:"reel", lead:"Draw...", slots:[L.PICT], secret:true, timer:60, hint:"Tap HIDE once the artist has seen it."},
-  "Sleeping Lions":        {kind:"countdown", seconds:180, hint:"Lions, get still! Zookeepers, no touching. Last lion sleeping when the clock runs out wins."},
+  "Book Tasting":          {kind:"countdown", seconds:180, done:"ROTATE!", hint:"Read quietly until the chime, then pass your book along. Start the clock again for each round."},
   "Telephone":             {kind:"reel", lead:"Whisper this...", slots:[L.TEL_WHO, L.TEL_DID, L.TEL_WHERE], secret:true, hint:"Tap HIDE once the first person has read it."},
   "Stretch & Yoga":        {kind:"reel", lead:"Hold this pose...", slots:[L.YOGA], timer:30, hint:"Hold it for 30 seconds. Breathe!"},
   "20 Questions":          {kind:"reel", lead:"The secret thing is...", slots:[L.TWENTY], secret:true, hint:"Tap HIDE once the answerer has seen it. The class gets 20 yes-or-no questions."},
@@ -597,7 +597,7 @@ function buzzer() {
 function metronome() { if (muted || !actx) return; beep("square", 440, actx.currentTime, 0.04, 0.05); }
 
 /* --- countdown widget used by several screens --- */
-function makeCountdown(seconds, onDone) {
+function makeCountdown(seconds, onDone, doneText) {
   const wrap = el("div");
   const disp = el("div", "gtimer", fmtTime(seconds));
   const start = btn("START " + fmtTime(seconds) + (seconds >= 60 ? " TIMER" : " SEC TIMER"), "secondary small", () => run());
@@ -608,7 +608,7 @@ function makeCountdown(seconds, onDone) {
     left = seconds; disp.textContent = fmtTime(left); disp.className = "gtimer"; start.disabled = true;
     wrap._iv = every(() => {
       left--;
-      if (left <= 0) { clearInterval(wrap._iv); disp.textContent = "TIME'S UP!"; disp.classList.add("done"); buzzer(); start.disabled = false; start.textContent = "AGAIN"; onDone && onDone(); return; }
+      if (left <= 0) { clearInterval(wrap._iv); disp.textContent = doneText || "TIME'S UP!"; disp.classList.add("done"); buzzer(); start.disabled = false; start.textContent = "AGAIN"; onDone && onDone(); return; }
       disp.textContent = fmtTime(left);
       if (left <= 5) disp.classList.add("warn");
       countBeep(left <= 3);
@@ -759,7 +759,7 @@ function buildStopwatch(s) {
 
 /* --- Plain countdown (Mystery Trash) --- */
 function buildCountdown(s) {
-  const cd = makeCountdown(s.seconds, () => burst());
+  const cd = makeCountdown(s.seconds, () => burst(), s.done);
   cd.querySelector(".gtimer").classList.add("big");
   gameBox.appendChild(cd);
   const btns = el("div", "gbtns"); gameBox.appendChild(btns);
