@@ -6,7 +6,7 @@ A giant 16-bit arcade wheel for picking an indoor recess activity. You stand fac
 
 Open `index.html` in any browser. No build step, no dependencies. Works on a projector or smartboard (use the Fullscreen button) and on phones, where the lever moves to a strip along the bottom in portrait.
 
-On load, a blinking PULL LEVER TO START prompt waits for the first tap, click, or key press, which plays a short chiptune boot jingle. The prompt comes back after a minute of no activity.
+The first tap, click, or key press plays a short chiptune boot jingle.
 
 **Helper screens.** Thirteen of the games open a simple pop-up when you tap "Let's Play!":
 
