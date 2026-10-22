@@ -143,6 +143,9 @@
   .gtimer.done{color:var(--edu-orange);animation:blink .4s steps(2,end) infinite}
   .gsub{font-size:clamp(18px,2vw,24px);line-height:1.2;color:var(--edu-dark-grey);margin:6px 0}
   .gbtns{margin-top:14px}
+  .stagebar{display:flex;justify-content:center;gap:10px;margin:8px 0 4px}
+  .dot{width:16px;height:16px;background:#fff;border:3px solid var(--edu-midnight)}
+  .dot.past{background:var(--edu-pacific)} .dot.now{background:var(--edu-sunshine)}
   .btn.small{font-size:12px;padding:10px 14px}
   .btn:disabled{opacity:.45;cursor:default;transform:none;box-shadow:5px 5px 0 var(--edu-midnight)}
 
@@ -223,7 +226,7 @@ const ACTIVITIES = [
   {e:"📞", n:"Telephone",               d:"Sit in a circle. The first person whispers a sentence to their neighbor, who passes it on. The last person says it out loud. See how silly it got!"},
   {e:"✊", n:"Rock Paper Scissors",      d:"Find a partner and play. The loser becomes the winner's biggest cheerleader and follows them to the next match. Keep going until one champion has the whole class cheering!"},
   {e:"🤫", n:"Silent Ball",             d:"Everyone stands on or beside their desk. Toss a soft ball around the room in total silence. Drop it, make a bad throw, or make a sound and you sit down. Last one standing wins."},
-  {e:"🔍", n:"Scavenger Hunt",          d:"The teacher calls out something to find in the room: 'something blue,' 'something that starts with S,' 'something round.' First person back to their seat holding it earns a point."},
+  {e:"🌧️", n:"Rainstorm",               d:"Make a rainstorm with your bodies! Follow the conductor: rub your palms for a drizzle, snap your fingers for rain, pat your knees for a downpour, stomp for thunder, then bring it back down to silence. Eyes closed makes it even better."},
   {e:"🤥", n:"Two Truths & a Lie",      d:"Each student shares three statements about themselves: two true and one false. The class votes on which one is the lie. Surprise your friends!"},
   {e:"🧘", n:"Stretch & Yoga",          d:"Students take turns leading the class in a stretch or yoga pose for 30 seconds each: tree pose, downward dog, toe touches, arm circles. Breathe and relax."},
   {e:"📖", n:"One-Word Story",          d:"Sit in a circle and build a story one word at a time. Each person adds just one word. Try to make it to the end of a sentence without laughing!"},
@@ -538,7 +541,6 @@ const L = {
   WYR_B: ["have a tail","be super tiny","speak every language","have a pet shark","live in a cave","eat tacos every day","be as small as a mouse","never eat candy again","have a robot do your chores","be the strongest person in the world","walk on clouds","time travel to the future","have a flying car","be a famous athlete","live on a spaceship","have super speed","only shout forever","have a bathtub full of chocolate pudding","be able to teleport","have a unicorn for a pet","live in a submarine","never have a bedtime again","be a ninja","have a room full of puppies","be able to freeze time","have a pet penguin","be a movie star","eat cake for dinner","have a secret treehouse lab","be the teacher for a day"],
   CHARADES: ["a monkey","a penguin","a chicken","a snake","a ballerina","a firefighter","brushing your teeth","a basketball player","a crying baby","a robot","a kangaroo","a surfer","a rock star","a ninja","a chef cooking","a sleepy cat","a dinosaur","a superhero flying","a gorilla","a frog","a doctor","a swimmer","an elephant","a tightrope walker","a zombie","a bee","a pirate","an astronaut","a dog digging a hole","a drummer"],
   PICT: ["a rainbow","a pizza","a dinosaur","a castle","a rocket ship","an umbrella","a snowman","a bicycle","an octopus","a school bus","a birthday cake","a volcano","a giraffe","an ice cream cone","a treasure chest","a lighthouse","a butterfly","a robot","a hot dog","a roller coaster","an elephant","a pirate ship","a tornado","a hamburger","a dragon","a skateboard","a campfire","a spider web","a mermaid","a flashlight"],
-  SCAV: ["blue","red","round","soft","that starts with the letter B","that starts with the letter S","with a zipper","made of wood","made of metal","smaller than your hand","with words on it","with numbers on it","that smells good","that makes noise","bumpy","smooth","shiny","green","yellow","you can write with","you can wear","that has a button","striped","that opens and closes","bigger than your head","with a picture of an animal","square","that bends","with a circle on it","orange"],
   TEL_WHO: ["My grandma","The principal","A purple elephant","Our class hamster","A ninja","The lunch lady","A sleepy dragon","My neighbor's cat","The tooth fairy","A giant robot","The school bus driver","A talking banana","My little brother","A friendly monster","The mail carrier","A pirate captain","A dancing penguin","The librarian","An alien","A magic frog","Our gym teacher","A wizard","The janitor","A singing cow","My best friend","A superhero","A baby goat","A queen","A snowman","A tiny mouse"],
   TEL_DID: ["ate forty pancakes","danced on the roof","lost a purple sock","rode a camel to school","sang opera","built a spaghetti castle","found a golden toothbrush","juggled seven watermelons","painted the moon green","tickled a crocodile","sneezed really loud","hid under the couch","baked a cake shaped like a shoe","wore pajamas","tripped over a pickle","taught a goldfish to whistle","slipped on a banana peel","drove a tiny car","wrote a poem about broccoli","won a hopping contest","lost both shoes","hiccupped for an hour","rode a unicycle","told a terrible joke","whispered to a tomato","bounced a watermelon","knitted a sweater for a giraffe","ate ice cream with a fork","did a cartwheel","invented a new sandwich"],
   TEL_WHERE: ["at the grocery store","on a Tuesday","during the spelling test","in the swimming pool","behind the bowling alley","at midnight","on top of a mountain","in the library","at the dentist","while wearing a tutu","on the way to Mars","in a rainstorm","at the zoo","under the kitchen table","at the birthday party","in a hot air balloon","at the North Pole","on the playground","in a jar of pickles","at the car wash","during lunch","on a bouncy castle","inside a giant pumpkin","at the beach","on a roller coaster","in the principal's office","in my backpack","at the movie theater","on a submarine","on a very windy day"],
@@ -550,7 +552,7 @@ const SCREENS = {
   "Would You Rather":      {kind:"reel", lead:"Would you rather...", slots:[L.WYR_A, L.WYR_B], join:"OR", hint:"Left side of the room for the first one, right side for the second."},
   "Charades":              {kind:"reel", lead:"Act out...", slots:[L.CHARADES], secret:true, timer:60, hint:"Tap HIDE once the actor has seen it."},
   "Whiteboard Pictionary": {kind:"reel", lead:"Draw...", slots:[L.PICT], secret:true, timer:60, hint:"Tap HIDE once the artist has seen it."},
-  "Scavenger Hunt":        {kind:"reel", lead:"Find something...", slots:[L.SCAV], timer:30, hint:"First one back in their seat holding it wins the point."},
+  "Rainstorm":             {kind:"stages", every:12, hint:"Press START and follow along. Each stage lasts 12 seconds. Quiet voices, listening ears.", stages:[["Drizzle","rub your palms together"],["Light rain","snap your fingers"],["Downpour","pat your knees"],["Thunder!","stomp your feet"],["Downpour","pat your knees"],["Light rain","snap your fingers"],["Drizzle","rub your palms together"],["Silence","hands in your lap, listen"]]},
   "Telephone":             {kind:"reel", lead:"Whisper this...", slots:[L.TEL_WHO, L.TEL_DID, L.TEL_WHERE], secret:true, hint:"Tap HIDE once the first person has read it."},
   "Stretch & Yoga":        {kind:"reel", lead:"Hold this pose...", slots:[L.YOGA], timer:30, hint:"Hold it for 30 seconds. Breathe!"},
   "20 Questions":          {kind:"reel", lead:"The secret thing is...", slots:[L.TWENTY], secret:true, hint:"Tap HIDE once the answerer has seen it. The class gets 20 yes-or-no questions."},
@@ -580,7 +582,7 @@ function openScreen(name) {
   gameBox.appendChild(el("div", "gtitle", name.toUpperCase()));
   if (s.hint) gameBox.appendChild(el("div", "gsub", s.hint));
   gameOverlay.classList.add("show");   // visible first so the builder can measure its slots
-  ({ reel: buildReel, random: buildRandom, corners: buildCorners, stopwatch: buildStopwatch, countdown: buildCountdown })[s.kind](s);
+  ({ reel: buildReel, random: buildRandom, corners: buildCorners, stopwatch: buildStopwatch, countdown: buildCountdown, stages: buildStages })[s.kind](s);
   return true;
 }
 function closeScreen() { screenOpen = false; screenAction = null; clearScreenTimers(); gameOverlay.classList.remove("show"); gameBox.innerHTML = ""; }
@@ -755,6 +757,34 @@ function buildStopwatch(s) {
   function stop(finished) {
     if (iv) clearInterval(iv); iv = null; running = false; go.textContent = "START";
     if (finished && elapsed > 0) { dingSound(); if (bestTime === null || elapsed < bestTime) { bestTime = elapsed; best.textContent = "NEW BEST TIME: " + big.textContent; } }
+  }
+}
+
+/* --- Stages (Rainstorm conductor) --- */
+function buildStages(s) {
+  const big = el("div", "big", "READY?"); gameBox.appendChild(big);
+  const sub = el("div", "lead", "Press START to begin the storm"); gameBox.appendChild(sub);
+  const bar = el("div", "stagebar"); gameBox.appendChild(bar);
+  const dots = s.stages.map(() => { const d = el("span", "dot"); bar.appendChild(d); return d; });
+  const btns = el("div", "gbtns"); gameBox.appendChild(btns);
+  const go = btn("START", "primary", start);
+  btns.append(go, btn("DONE", "secondary small", closeScreen));
+  let running = false;
+  screenAction = start;
+  function show(i) {
+    big.textContent = s.stages[i][0]; big.className = "big" + (s.stages[i][0].includes("!") ? " alert" : "");
+    sub.textContent = s.stages[i][1];
+    dots.forEach((d, k) => d.className = "dot" + (k < i ? " past" : k === i ? " now" : ""));
+  }
+  function start() {
+    if (running) return;
+    ensureAudio(); running = true; go.disabled = true;
+    let i = 0; show(i); slotStopSound();
+    const iv = every(() => {
+      i++;
+      if (i >= s.stages.length) { clearInterval(iv); running = false; go.disabled = false; go.textContent = "AGAIN"; dingSound(); return; }
+      show(i); slotStopSound();
+    }, s.every * 1000);
   }
 }
 
