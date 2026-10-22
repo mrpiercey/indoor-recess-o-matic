@@ -124,12 +124,13 @@
   .lead{font-family:var(--pixel);font-size:clamp(12px,1.6vw,18px);line-height:1.5;color:var(--edu-pacific);margin:10px 0;min-height:1.5em}
   .slots{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin:12px 0}
   .slot{font-family:var(--pixel);font-size:clamp(12px,1.9vw,22px);line-height:1.5;background:#fff;border:4px solid var(--edu-midnight);
-    box-shadow:5px 5px 0 var(--edu-midnight);padding:14px 18px;min-width:160px;max-width:100%}
+    box-shadow:5px 5px 0 var(--edu-midnight);padding:14px 18px;min-width:160px;max-width:100%;
+    display:flex;align-items:center;justify-content:center}
   .slot.spin{background:var(--edu-sunshine)}
   .slot.hit{background:var(--edu-light-green);animation:hit .3s steps(3)}
   .slot.secret{background:var(--edu-midnight);color:var(--edu-sunshine)}
   @keyframes hit{0%{transform:scale(1.12)}100%{transform:none}}
-  .join{font-family:var(--pixel);font-size:clamp(12px,1.6vw,18px);color:var(--edu-dark-grey)}
+  .join{flex-basis:100%;font-family:var(--pixel);font-size:clamp(12px,1.6vw,18px);color:var(--edu-dark-grey)}
   .big{font-family:var(--pixel);font-size:clamp(44px,10vw,112px);line-height:1.15;color:var(--edu-midnight);text-shadow:5px 5px 0 var(--edu-sunshine);margin:16px 0}
   .big.alert{color:var(--edu-orange);text-shadow:5px 5px 0 var(--edu-midnight);animation:blink .4s steps(2,end) infinite}
   .big.go{color:var(--edu-green);animation:bounce .5s steps(4) infinite alternate}
@@ -575,8 +576,8 @@ function openScreen(name) {
   gameBox.innerHTML = "";
   gameBox.appendChild(el("div", "gtitle", name.toUpperCase()));
   if (s.hint) gameBox.appendChild(el("div", "gsub", s.hint));
+  gameOverlay.classList.add("show");   // visible first so the builder can measure its slots
   ({ reel: buildReel, random: buildRandom, corners: buildCorners, stopwatch: buildStopwatch, countdown: buildCountdown })[s.kind](s);
-  gameOverlay.classList.add("show");
   return true;
 }
 function closeScreen() { screenOpen = false; screenAction = null; clearScreenTimers(); gameOverlay.classList.remove("show"); gameBox.innerHTML = ""; }
@@ -625,6 +626,19 @@ function buildReel(s) {
     const d = el("div", "slot", "?"); d._list = list; d._word = ""; row.appendChild(d); return d;
   });
   if (s.suffix) row.appendChild(el("span", "join", s.suffix));
+  // size every slot to its longest word so nothing jumps around while rolling
+  function sizeSlots() {
+    slots.forEach(d => {
+      d.style.width = ""; d.style.minHeight = "";
+      let maxW = 0, maxH = 0;
+      for (const w of d._list) { d.textContent = w; maxW = Math.max(maxW, d.offsetWidth); maxH = Math.max(maxH, d.offsetHeight); }
+      d.textContent = "? ? ?"; maxW = Math.max(maxW, d.offsetWidth); maxH = Math.max(maxH, d.offsetHeight);
+      d.textContent = "?";
+      d.style.width = maxW + "px"; d.style.minHeight = maxH + "px";
+    });
+  }
+  sizeSlots();
+  document.fonts.ready.then(sizeSlots);
   let timer = null;
   if (s.timer) { timer = makeCountdown(s.timer); gameBox.appendChild(timer); }
   const btns = el("div", "gbtns"); gameBox.appendChild(btns);
