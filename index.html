@@ -90,7 +90,9 @@
     padding:30px 36px 28px;text-align:center;transform:scale(.7);opacity:0;transition:transform .35s steps(5),opacity .2s steps(3)}
   #overlay.show #card{transform:scale(1);opacity:1}
   #card .kicker{font-family:var(--pixel);font-size:14px;color:var(--edu-orange);letter-spacing:1px}
-  #card .emoji{font-size:clamp(70px,12vw,120px);line-height:1.1;margin:8px 0 4px}
+  #card .emoji{margin:10px 0 8px}
+  #card .emoji img{width:clamp(84px,13vw,130px);height:auto;aspect-ratio:1;box-sizing:border-box;padding:16px;background:#fff;border-radius:50%;
+    border:4px solid var(--edu-midnight);box-shadow:6px 6px 0 var(--edu-midnight);image-rendering:pixelated}
   #card h2{margin:0;font-family:var(--pixel);font-size:clamp(18px,3.4vw,36px);line-height:1.35;color:var(--edu-pacific);
     text-shadow:3px 3px 0 var(--edu-sunshine)}
   #card p{font-size:clamp(22px,2.6vw,30px);line-height:1.25;margin:18px 0 24px;color:var(--edu-dark-grey)}
@@ -118,6 +120,7 @@
   #panel label{display:flex;align-items:center;gap:12px;padding:8px;font-size:24px;line-height:1;cursor:pointer}
   #panel label:hover{background:#ffffff14}
   #panel label input{width:20px;height:20px;accent-color:var(--edu-green)}
+  #panel .licon{width:26px;height:26px;padding:4px;box-sizing:border-box;background:var(--edu-cream);border-radius:50%;flex-shrink:0}
   #panel label.off{opacity:.45;text-decoration:line-through}
   #panel .peek{margin-left:auto;font-family:var(--pixel);font-size:10px;background:var(--edu-sunshine);color:var(--edu-midnight);
     border:2px solid #fff;padding:6px 8px;cursor:pointer;box-shadow:2px 2px 0 #000;flex-shrink:0}
@@ -227,7 +230,7 @@
 <div id="overlay">
   <div id="card">
     <div class="kicker">&#9654; TODAY'S GAME IS...</div>
-    <div class="emoji" id="rEmoji">🎉</div>
+    <div class="emoji"><img id="rIcon" alt=""></div>
     <h2 id="rName">Hot Potato</h2>
     <p id="rDesc"></p>
     <button class="btn primary" id="playBtn">LET'S PLAY!</button>
@@ -253,29 +256,71 @@
 <script>
 /* ---------------- Activities ---------------- */
 const ACTIVITIES = [
-  {e:"🥔", n:"Hot Potato",              d:"Sit in a circle and pass a soft ball (the potato) as fast as you can while the beat plays. When the buzzer sounds, whoever is holding the potato is out. Last player left wins!"},
-  {e:"🔢", n:"Four Corners",            d:"Number the four corners of the room. The caller closes their eyes and counts to ten while everyone sneaks to a corner. The caller names a corner, and anyone standing there is out."},
-  {e:"👍", n:"Heads Up, 7 Up",          d:"Seven students stand at the front. Everyone else puts their head down with a thumb up. The seven each secretly press one thumb. Heads up! Guess who picked you."},
-  {e:"🎭", n:"Charades",                d:"Act out an animal, movie, job, or book character with no talking. The class guesses. Whoever guesses right acts out the next one."},
-  {e:"🤔", n:"Would You Rather",        d:"The teacher or a student reads a silly 'Would you rather' question. Move to the left side of the room for choice A or the right side for choice B, then share why!"},
-  {e:"👉", n:"Simon Says",              d:"Simon gives commands like 'Simon says touch your toes.' Only follow commands that start with 'Simon says.' If you move on a command without it, you're out!"},
-  {e:"✏️", n:"Whiteboard Pictionary",   d:"Split into two teams. One artist per team draws a secret word on the board while teammates shout guesses. No letters or numbers allowed. First team to guess wins the point."},
-  {e:"🎨", n:"Speed Doodle",             d:"Everyone grabs paper and a pencil. The teacher calls out a silly prompt, like 'a cat driving a bus' or 'your teacher as a superhero,' and you get 60 seconds to draw it. Hold up your masterpieces and vote for the funniest!"},
-  {e:"🪢", n:"Human Knot",              d:"Stand in a circle, reach in, and grab two different people's hands. Now untangle yourselves into a circle without letting go. Teamwork and talking are key!"},
-  {e:"📞", n:"Telephone",               d:"Sit in a circle. The first person whispers a sentence to their neighbor, who passes it on. The last person says it out loud. See how silly it got!"},
-  {e:"✊", n:"Rock Paper Scissors",      d:"Find a partner and play. The loser becomes the winner's biggest cheerleader and follows them to the next match. Keep going until one champion has the whole class cheering!"},
-  {e:"🤫", n:"Silent Ball",             d:"Everyone stands on or beside their desk. Toss a soft ball around the room in total silence. Drop it, make a bad throw, or make a sound and you sit down. Last one standing wins."},
-  {e:"📚", n:"Book Tasting",            d:"Spread books around the room like a menu. Everyone picks one and reads quietly for three minutes to taste it. When the chime rings, pass your book to the next person and taste a new one. At the end, pick your favorite to keep reading!"},
-  {e:"🤥", n:"Two Truths & a Lie",      d:"Each student shares three statements about themselves: two true and one false. The class votes on which one is the lie. Surprise your friends!"},
-  {e:"🧘", n:"Stretch & Yoga",          d:"Students take turns leading the class in a stretch or yoga pose for 30 seconds each: tree pose, downward dog, toe touches, arm circles. Breathe and relax."},
-  {e:"📖", n:"One-Word Story",          d:"Sit in a circle and build a story one word at a time. Each person adds just one word. Try to make it to the end of a sentence without laughing!"},
-  {e:"❓", n:"20 Questions",            d:"One student secretly thinks of an animal, place, or object. The class can ask up to 20 yes-or-no questions to figure it out. Can you guess it before the questions run out?"},
-  {e:"🗑️", n:"Mystery Trash",           d:"The teacher secretly picks one piece of trash or clutter on the floor as the Mystery Trash. Everyone cleans up as fast as they can. Whoever picks up the mystery item wins a prize!"},
-  {e:"🪑", n:"Musical Chairs",          d:"Set up chairs in a circle, one fewer than players. The class claps and sings while everyone walks around. When the singing stops, grab a seat! Remove a chair each round."},
-  {e:"🧩", n:"Board Games & Puzzles",   d:"Free choice time! Grab a board game, card game, or puzzle with a small group. Teach a friend a new game. Be a good sport and clean up when you're done."},
+  {i:"flame", n:"Hot Potato",              d:"Sit in a circle and pass a soft ball (the potato) as fast as you can while the beat plays. When the buzzer sounds, whoever is holding the potato is out. Last player left wins!"},
+  {i:"grid-2x2", n:"Four Corners",            d:"Number the four corners of the room. The caller closes their eyes and counts to ten while everyone sneaks to a corner. The caller names a corner, and anyone standing there is out."},
+  {i:"thumbs-up", n:"Heads Up, 7 Up",          d:"Seven students stand at the front. Everyone else puts their head down with a thumb up. The seven each secretly press one thumb. Heads up! Guess who picked you."},
+  {i:"drama", n:"Charades",                d:"Act out an animal, movie, job, or book character with no talking. The class guesses. Whoever guesses right acts out the next one."},
+  {i:"scale", n:"Would You Rather",        d:"The teacher or a student reads a silly 'Would you rather' question. Move to the left side of the room for choice A or the right side for choice B, then share why!"},
+  {i:"megaphone", n:"Simon Says",              d:"Simon gives commands like 'Simon says touch your toes.' Only follow commands that start with 'Simon says.' If you move on a command without it, you're out!"},
+  {i:"presentation", n:"Whiteboard Pictionary",   d:"Split into two teams. One artist per team draws a secret word on the board while teammates shout guesses. No letters or numbers allowed. First team to guess wins the point."},
+  {i:"palette", n:"Speed Doodle",             d:"Everyone grabs paper and a pencil. The teacher calls out a silly prompt, like 'a cat driving a bus' or 'your teacher as a superhero,' and you get 60 seconds to draw it. Hold up your masterpieces and vote for the funniest!"},
+  {i:"users-round", n:"Human Knot",              d:"Stand in a circle, reach in, and grab two different people's hands. Now untangle yourselves into a circle without letting go. Teamwork and talking are key!"},
+  {i:"phone", n:"Telephone",               d:"Sit in a circle. The first person whispers a sentence to their neighbor, who passes it on. The last person says it out loud. See how silly it got!"},
+  {i:"scissors", n:"Rock Paper Scissors",      d:"Find a partner and play. The loser becomes the winner's biggest cheerleader and follows them to the next match. Keep going until one champion has the whole class cheering!"},
+  {i:"volume-off", n:"Silent Ball",             d:"Everyone stands on or beside their desk. Toss a soft ball around the room in total silence. Drop it, make a bad throw, or make a sound and you sit down. Last one standing wins."},
+  {i:"book-open", n:"Book Tasting",            d:"Spread books around the room like a menu. Everyone picks one and reads quietly for three minutes to taste it. When the chime rings, pass your book to the next person and taste a new one. At the end, pick your favorite to keep reading!"},
+  {i:"message-circle-question", n:"Two Truths & a Lie",      d:"Each student shares three statements about themselves: two true and one false. The class votes on which one is the lie. Surprise your friends!"},
+  {i:"person-standing", n:"Stretch & Yoga",          d:"Students take turns leading the class in a stretch or yoga pose for 30 seconds each: tree pose, downward dog, toe touches, arm circles. Breathe and relax."},
+  {i:"scroll-text", n:"One-Word Story",          d:"Sit in a circle and build a story one word at a time. Each person adds just one word. Try to make it to the end of a sentence without laughing!"},
+  {i:"circle-help", n:"20 Questions",            d:"One student secretly thinks of an animal, place, or object. The class can ask up to 20 yes-or-no questions to figure it out. Can you guess it before the questions run out?"},
+  {i:"trash-2", n:"Mystery Trash",           d:"The teacher secretly picks one piece of trash or clutter on the floor as the Mystery Trash. Everyone cleans up as fast as they can. Whoever picks up the mystery item wins a prize!"},
+  {i:"armchair", n:"Musical Chairs",          d:"Set up chairs in a circle, one fewer than players. The class claps and sings while everyone walks around. When the singing stops, grab a seat! Remove a chair each round."},
+  {i:"dices", n:"Board Games & Puzzles",   d:"Free choice time! Grab a board game, card game, or puzzle with a small group. Teach a friend a new game. Be a good sport and clean up when you're done."},
 ];
-// Edutopia palette, bright ones only
-const COLORS = ["#FF4C00","#0094C7","#FFBC0D","#6FB300","#E75CAE","#00AFAB","#A973DF","#FF9B0D","#4FD2FF","#F27179"];
+// Edutopia palette: each panel color paired with a complementary accent for its icon
+const PAIRS = [["#FF4C00","#4FD2FF"],["#0094C7","#FFBC0D"],["#FFBC0D","#532681"],["#6FB300","#E75CAE"],["#E75CAE","#BDF22E"],["#00AFAB","#FF9B0D"],["#A973DF","#FFBC0D"],["#FF9B0D","#004861"],["#4FD2FF","#FF4C00"],["#F27179","#00AFAB"]];
+const COLORS = PAIRS.map(p => p[0]);
+const ICON_PATHS = {
+"flame": "<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />",
+"grid-2x2": "<path d=\"M12 3v18\" /> <path d=\"M3 12h18\" /> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" />",
+"thumbs-up": "<path d=\"M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z\" /> <path d=\"M7 10v12\" />",
+"drama": "<path d=\"M10 11h.01\" /> <path d=\"M14 6h.01\" /> <path d=\"M18 6h.01\" /> <path d=\"M6.5 13.1h.01\" /> <path d=\"M22 5c0 9-4 12-6 12s-6-3-6-12c0-2 2-3 6-3s6 1 6 3\" /> <path d=\"M17.4 9.9c-.8.8-2 .8-2.8 0\" /> <path d=\"M10.1 7.1C9 7.2 7.7 7.7 6 8.6c-3.5 2-4.7 3.9-3.7 5.6 4.5 7.8 9.5 8.4 11.2 7.4.9-.5 1.9-2.1 1.9-4.7\" /> <path d=\"M9.1 16.5c.3-1.1 1.4-1.7 2.4-1.4\" />",
+"scale": "<path d=\"M12 3v18\" /> <path d=\"m19 8 3 8a5 5 0 0 1-6 0zV7\" /> <path d=\"M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1\" /> <path d=\"m5 8 3 8a5 5 0 0 1-6 0zV7\" /> <path d=\"M7 21h10\" />",
+"megaphone": "<path d=\"M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z\" /> <path d=\"M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14\" /> <path d=\"M8 6v8\" />",
+"presentation": "<path d=\"M2 3h20\" /> <path d=\"M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3\" /> <path d=\"m7 21 5-5 5 5\" />",
+"palette": "<path d=\"M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z\" /> <circle cx=\"13.5\" cy=\"6.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"17.5\" cy=\"10.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"6.5\" cy=\"12.5\" r=\".5\" fill=\"currentColor\" /> <circle cx=\"8.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />",
+"users-round": "<path d=\"M18 21a8 8 0 0 0-16 0\" /> <circle cx=\"10\" cy=\"8\" r=\"5\" /> <path d=\"M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3\" />",
+"phone": "<path d=\"M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384\" />",
+"scissors": "<circle cx=\"6\" cy=\"6\" r=\"3\" /> <path d=\"M8.12 8.12 12 12\" /> <path d=\"M20 4 8.12 15.88\" /> <circle cx=\"6\" cy=\"18\" r=\"3\" /> <path d=\"M14.8 14.8 20 20\" />",
+"volume-off": "<path d=\"M16 9a5 5 0 0 1 .95 2.293\" /> <path d=\"M19.364 5.636a9 9 0 0 1 1.889 9.96\" /> <path d=\"m2 2 20 20\" /> <path d=\"m7 7-.587.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298V11\" /> <path d=\"M9.828 4.172A.686.686 0 0 1 11 4.657v.686\" />",
+"book-open": "<path d=\"M12 5v16\" /> <path d=\"M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z\" />",
+"message-circle-question": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\" /> <path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\" /> <path d=\"M12 17h.01\" />",
+"person-standing": "<circle cx=\"12\" cy=\"5\" r=\"1\" /> <path d=\"m9 20 3-6 3 6\" /> <path d=\"m6 8 6 2 6-2\" /> <path d=\"M12 10v4\" />",
+"scroll-text": "<path d=\"M15 12h-5\" /> <path d=\"M15 8h-5\" /> <path d=\"M19 17V5a2 2 0 0 0-2-2H4\" /> <path d=\"M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3\" />",
+"circle-help": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\" /> <path d=\"M12 17h.01\" />",
+"trash-2": "<path d=\"M10 11v6\" /> <path d=\"M14 11v6\" /> <path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />",
+"armchair": "<path d=\"M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3\" /> <path d=\"M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z\" /> <path d=\"M5 18v2\" /> <path d=\"M19 18v2\" />",
+"dices": "<rect width=\"12\" height=\"12\" x=\"2\" y=\"10\" rx=\"2\" ry=\"2\" /> <path d=\"m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6\" /> <path d=\"M6 18h.01\" /> <path d=\"M10 14h.01\" /> <path d=\"M15 6h.01\" /> <path d=\"M18 9h.01\" />"
+};
+
+// Lucide icons (ISC license, see icons/LICENSE.txt) recolored on the fly
+const iconCache = {};
+function iconSVG(name, color) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${ICON_PATHS[name]}</svg>`;
+}
+function iconURL(name, color) { return "data:image/svg+xml;base64," + btoa(iconSVG(name, color)); }
+function iconImg(name, color) {
+  const key = name + "|" + color;
+  if (!iconCache[key]) { const im = new Image(); im.src = iconURL(name, color); iconCache[key] = im; }
+  return iconCache[key];
+}
+// flat cream circle with the icon inside, drawn in the current canvas transform
+function drawBadge(c, x, y, r, name, accent) {
+  c.fillStyle = MIDNIGHT; c.beginPath(); c.arc(x + 1, y + 1, r, 0, Math.PI * 2); c.fill();
+  c.fillStyle = CREAM; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+  const im = iconImg(name, accent);
+  if (im.complete && im.naturalWidth) { const sz = r * 1.25; c.drawImage(im, x - sz / 2, y - sz / 2, sz, sz); }
+}
 const MIDNIGHT = "#1D2A44", SUNSHINE = "#FFBC0D", ORANGE = "#FF4C00", CREAM = "#FFF7ED", PACIFIC = "#0094C7", SPACE = "#004861";
 
 /* ---------------- State ---------------- */
@@ -331,7 +376,6 @@ function frontIndex() {
   return ((Math.round(-rot / seg()) % n) + n) % n;
 }
 function pxFont(size) { return `${Math.max(6, Math.round(size))}px "Press Start 2P", monospace`; }
-function emojiFont(size) { return `${Math.round(size)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; }
 
 function draw(now) {
   ctx.clearRect(0, 0, W, H);
@@ -383,9 +427,9 @@ function draw(now) {
     }
     ctx.textBaseline = "middle"; ctx.textAlign = "center";
     if (!narrow) {
-      ctx.font = emojiFont(em); ctx.fillStyle = "#fff"; ctx.globalAlpha = 1;
-      ctx.fillText(items[i].e, -edge, 1);
-      ctx.fillText(items[i].e, edge, 1);
+      const accent = PAIRS[i % PAIRS.length][1];
+      drawBadge(ctx, -edge, 0, em * 0.6, items[i].i, accent);
+      drawBadge(ctx, edge, 0, em * 0.6, items[i].i, accent);
     }
     ctx.font = pxFont(fs);
     lines.forEach((ln, li) => {
@@ -545,10 +589,11 @@ function land(idx) {
 /* ---------------- Result box ---------------- */
 const overlay = document.getElementById("overlay");
 let currentResult = null;
+function accentFor(a) { let k = active().indexOf(a); if (k < 0) k = ACTIVITIES.indexOf(a); return PAIRS[k % PAIRS.length][1]; }
 function showResult(a) {
   currentResult = a;
   document.getElementById("playBtn").textContent = SCREENS[a.n] ? "LET'S PLAY! \u25B6" : "LET'S PLAY!";
-  document.getElementById("rEmoji").textContent = a.e;
+  document.getElementById("rIcon").src = iconURL(a.i, accentFor(a));
   document.getElementById("rName").textContent = a.n.toUpperCase();
   document.getElementById("rDesc").textContent = a.d;
   overlay.classList.add("show");
@@ -869,7 +914,8 @@ function renderList() {
     };
     const test = document.createElement("button"); test.className = "peek"; test.textContent = "\u25B6"; test.title = "Open this game";
     test.onclick = e => { e.preventDefault(); panel.classList.remove("open"); ensureAudio(); showResult(a); };
-    l.append(cb, document.createTextNode(`${a.e} ${a.n}`), test);
+    const ic = document.createElement("img"); ic.className = "licon"; ic.src = iconURL(a.i, accentFor(a)); ic.alt = "";
+    l.append(cb, ic, document.createTextNode(a.n), test);
     list.appendChild(l);
   });
 }
