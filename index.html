@@ -74,6 +74,14 @@
   @keyframes blink{0%{opacity:1}50%{opacity:0}}
   #leverLabel{position:absolute;left:0;right:0;bottom:26px;text-align:center;font-family:var(--pixel);font-size:10px;color:var(--edu-tech);line-height:1.8}
 
+  /* ---------- Start prompt ---------- */
+  #startText{position:fixed;left:0;top:calc(var(--marquee-h) + 8px);right:var(--lever-w);bottom:var(--lever-h);z-index:8;
+    display:flex;align-items:center;justify-content:center;pointer-events:none;
+    font-family:var(--pixel);font-size:clamp(16px,3.2vw,40px);color:#fff;text-align:center;line-height:1.5;
+    text-shadow:4px 4px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000;
+    animation:blink .9s steps(2,end) infinite}
+  #startText.hide{display:none}
+
   /* ---------- Result box (RPG dialog style) ---------- */
   #overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:#0009}
   #overlay.show{display:flex}
@@ -214,6 +222,8 @@
   <div id="leverLabel">DRAG DOWN<br>OR PRESS SPACE</div>
 </div>
 
+<div id="startText">PULL LEVER<br>TO START</div>
+
 <div id="overlay">
   <div id="card">
     <div class="kicker">&#9654; TODAY'S GAME IS...</div>
@@ -352,7 +362,8 @@ function draw(now) {
     ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.fillRect(cx - hw0, p0.y, hw0 * 2, Math.max(1, Math.round(panelH * 0.06 * p0.f * c)));
     ctx.lineWidth = 2; ctx.strokeStyle = MIDNIGHT; ctx.stroke();
 
-    // label
+    // label (the front panel stays blank until the first pull so the start prompt has room)
+    if (!booted && i === front) continue;
     const pm = project(mid);
     ctx.save();
     ctx.translate(cx, pm.y);
@@ -490,6 +501,7 @@ function boot() {
   if (booted) return;
   booted = true; bootTime = performance.now();
   ensureAudio(); jingle();
+  document.getElementById("startText").classList.add("hide");
 }
 document.addEventListener("pointerdown", boot, true);
 document.addEventListener("keydown", boot, true);
