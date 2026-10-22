@@ -36,7 +36,8 @@
   #marquee{position:fixed;left:0;top:0;right:var(--lever-w);height:var(--marquee-h);z-index:5;
     background:var(--edu-midnight);border-bottom:4px solid var(--edu-sunshine);
     display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 20px 0 14px}
-  #marquee img{width:44px;height:44px;image-rendering:auto;border:3px solid var(--edu-cream);background:#fff;flex-shrink:0}
+  #leverLogo{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:96px;height:96px;image-rendering:auto;
+    border:4px solid var(--edu-cream);background:#fff;box-shadow:5px 5px 0 #000}
   #marquee h1{margin:0;font-family:var(--pixel);font-size:clamp(13px,1.9vw,27px);line-height:1.2;color:var(--edu-sunshine);
     text-shadow:3px 3px 0 var(--edu-orange),6px 6px 0 #000}
   #marquee p{margin:0;font-size:clamp(16px,1.7vw,26px);line-height:1;color:var(--edu-tech);letter-spacing:1px}
@@ -155,7 +156,7 @@
     #rod{height:220px;bottom:48px}
     #knob{width:62px;height:62px}
     #leverBase{width:100px;height:74px}
-    #marquee img{display:none}
+    #leverLogo{width:64px;height:64px;top:12px}
     #marquee p{display:none}
     #leverLabel{display:none}
     #fs{display:none}
@@ -172,11 +173,11 @@
     <h1>INDOOR RECESS-O-MATIC</h1>
     <p>PULL THE LEVER &bull; PLAY THE GAME &bull; 20 INDOOR RECESS ACTIVITIES</p>
   </div>
-  <img src="edu_bug.png" alt="edu">
 </div>
 <div id="ribbon"></div>
 
 <div id="leverWrap">
+  <img id="leverLogo" src="edu_bug.png" alt="edu">
   <div id="leverInner">
     <div id="leverHint">PULL!</div>
     <div id="leverBase"></div>
