@@ -110,6 +110,9 @@
   #panel label:hover{background:#ffffff14}
   #panel label input{width:20px;height:20px;accent-color:var(--edu-green)}
   #panel label.off{opacity:.45;text-decoration:line-through}
+  #panel .peek{margin-left:auto;font-family:var(--pixel);font-size:10px;background:var(--edu-sunshine);color:var(--edu-midnight);
+    border:2px solid #fff;padding:6px 8px;cursor:pointer;box-shadow:2px 2px 0 #000;flex-shrink:0}
+  #panel .peek:hover{background:var(--edu-light-green)}
   #panel .note{padding:10px 20px 14px;font-size:19px;line-height:1.15;color:var(--edu-tech);border-top:4px solid var(--edu-pacific)}
   #panel .warn{color:var(--edu-sunshine);min-height:1.2em}
 
@@ -205,7 +208,7 @@
     <button id="allOn">ALL ON</button>
   </div>
   <div class="list" id="list"></div>
-  <div class="note">Uncheck an activity to take it off the wheel. Saved on this device.<div class="warn" id="warn"></div></div>
+  <div class="note">Uncheck an activity to take it off the wheel. Tap &#9654; to open any game without spinning. Saved on this device.<div class="warn" id="warn"></div></div>
 </aside>
 
 <script>
@@ -788,7 +791,9 @@ function renderList() {
       l.classList.toggle("off", !cb.checked);
       winner = -1; saveDisabled();
     };
-    l.append(cb, document.createTextNode(`${a.e} ${a.n}`));
+    const test = document.createElement("button"); test.className = "peek"; test.textContent = "\u25B6"; test.title = "Open this game";
+    test.onclick = e => { e.preventDefault(); panel.classList.remove("open"); ensureAudio(); showResult(a); };
+    l.append(cb, document.createTextNode(`${a.e} ${a.n}`), test);
     list.appendChild(l);
   });
 }

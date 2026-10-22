@@ -13,7 +13,7 @@ Open `index.html` in any browser. No build step, no dependencies. Works on a pro
 
 Press **Space** inside any pop-up to roll or start.
 
-**Teacher settings** (bottom-left): turn individual activities on or off, mute sound. Choices are saved in the browser.
+**Teacher settings** (bottom-left): turn individual activities on or off, mute sound, or tap the ▶ next to any game to open it directly without spinning (handy for testing or when you already know what you want to play). Choices are saved in the browser.
 
 ## Style
 
