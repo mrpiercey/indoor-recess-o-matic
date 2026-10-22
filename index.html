@@ -614,7 +614,9 @@ function makeCountdown(seconds, onDone, doneText) {
     }, 1000);
   }
   function clearCountdown() { if (wrap._iv) clearInterval(wrap._iv); }
-  wrap.run = run; wrap.stop = clearCountdown;
+  function reset() { clearCountdown(); left = seconds; disp.textContent = fmtTime(left); disp.className = "gtimer"; start.textContent = "START " + fmtTime(seconds) + (seconds >= 60 ? " TIMER" : " SEC TIMER"); }
+  wrap.run = run; wrap.stop = clearCountdown; wrap.reset = reset;
+  wrap.enable = on => { start.disabled = !on; };
   return wrap;
 }
 
@@ -645,7 +647,7 @@ function buildReel(s) {
   sizeSlots();
   document.fonts.ready.then(sizeSlots);
   let timer = null;
-  if (s.timer) { timer = makeCountdown(s.timer); gameBox.appendChild(timer); }
+  if (s.timer) { timer = makeCountdown(s.timer); timer.enable(false); gameBox.appendChild(timer); }
   const btns = el("div", "gbtns"); gameBox.appendChild(btns);
   const go = btn("GO!", "primary", roll);
   const show = btn("SHOW", "secondary", toggleSecret); show.style.display = "none";
@@ -663,7 +665,7 @@ function buildReel(s) {
   function roll() {
     if (rolling) return;
     ensureAudio(); rolling = true; go.disabled = true; show.style.display = "none"; revealed = true; show.textContent = "HIDE";
-    if (timer) timer.stop();
+    if (timer) { timer.reset(); timer.enable(false); }
     lead.className = "lead"; lead.textContent = s.lead;
     let remaining = slots.length;
     slots.forEach((d, k) => {
@@ -680,6 +682,7 @@ function buildReel(s) {
   }
   function finish() {
     dingSound(); rolling = false; go.disabled = false; go.textContent = "NEW ONE";
+    if (timer) timer.enable(true);
     if (s.secret) show.style.display = "";
   }
 }
