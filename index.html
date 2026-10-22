@@ -324,20 +324,19 @@ function draw(now) {
     ctx.translate(cx, pm.y);
     ctx.scale(pm.f, pm.f * c);
     let fs = Math.min(18, Math.max(8, Math.round(panelH * 0.2)));
-    const em = fs * 1.6, gap = fs * 0.3;
+    const em = fs * 1.8;
+    const edge = Wd / 2 - em * 0.9;                   // emoji sit in the left and right corners
     ctx.font = pxFont(fs);
-    while (ctx.measureText(items[i].n).width + em + gap > Wd * 0.8 && fs > 6) { fs -= 1; ctx.font = pxFont(fs); }
-    const nameW = ctx.measureText(items[i].n).width;
-    const total = em + gap + nameW;
-    const x0 = -total / 2;
-    ctx.textBaseline = "middle";
-    ctx.font = emojiFont(em); ctx.textAlign = "left"; ctx.fillStyle = "#fff"; ctx.globalAlpha = 1;
-    ctx.fillText(items[i].e, x0, 1);
+    while (ctx.measureText(items[i].n).width > Wd * 0.66 && fs > 6) { fs -= 1; ctx.font = pxFont(fs); }
+    ctx.textBaseline = "middle"; ctx.textAlign = "center";
+    ctx.font = emojiFont(em); ctx.fillStyle = "#fff"; ctx.globalAlpha = 1;
+    ctx.fillText(items[i].e, -edge, 1);
+    ctx.fillText(items[i].e, edge, 1);
     ctx.font = pxFont(fs);
     ctx.fillStyle = MIDNIGHT;
-    ctx.fillText(items[i].n, x0 + em + gap + 2, 2);   // hard pixel shadow
+    ctx.fillText(items[i].n, 2, 2);                    // hard pixel shadow
     ctx.fillStyle = "#fff";
-    ctx.fillText(items[i].n, x0 + em + gap, 0);
+    ctx.fillText(items[i].n, 0, 0);
     ctx.restore();
   }
 
