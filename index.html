@@ -544,12 +544,12 @@ const L = {
 const SCREENS = {
   "Speed Doodle":          {kind:"reel", lead:"Draw...", slots:[L.DOODLE_WHO, L.DOODLE_DO, L.DOODLE_WHERE], timer:60, hint:"Everyone draws the same thing. 60 seconds!"},
   "Would You Rather":      {kind:"reel", lead:"Would you rather...", slots:[L.WYR_A, L.WYR_B], join:"or", suffix:"?", hint:"Left side of the room for the first one, right side for the second."},
-  "Charades":              {kind:"reel", lead:"Act out...", slots:[L.CHARADES], secret:true, timer:60, hint:"Only the actor looks! Tap SHOW when the class looks away."},
-  "Whiteboard Pictionary": {kind:"reel", lead:"Draw...", slots:[L.PICT], secret:true, timer:60, hint:"Only the artist looks! Tap SHOW when the class looks away."},
+  "Charades":              {kind:"reel", lead:"Act out...", slots:[L.CHARADES], secret:true, timer:60, hint:"Tap HIDE once the actor has seen it."},
+  "Whiteboard Pictionary": {kind:"reel", lead:"Draw...", slots:[L.PICT], secret:true, timer:60, hint:"Tap HIDE once the artist has seen it."},
   "Scavenger Hunt":        {kind:"reel", lead:"Find something...", slots:[L.SCAV], timer:30, hint:"First one back in their seat holding it wins the point."},
-  "Telephone":             {kind:"reel", lead:"Whisper this...", slots:[L.TEL_WHO, L.TEL_DID, L.TEL_WHERE], secret:true, hint:"Only the first person in the circle looks!"},
+  "Telephone":             {kind:"reel", lead:"Whisper this...", slots:[L.TEL_WHO, L.TEL_DID, L.TEL_WHERE], secret:true, hint:"Tap HIDE once the first person has read it."},
   "Stretch & Yoga":        {kind:"reel", lead:"Hold this pose...", slots:[L.YOGA], timer:30, hint:"Hold it for 30 seconds. Breathe!"},
-  "20 Questions":          {kind:"reel", lead:"The secret thing is...", slots:[L.TWENTY], secret:true, hint:"Only the person answering looks! The class gets 20 yes-or-no questions."},
+  "20 Questions":          {kind:"reel", lead:"The secret thing is...", slots:[L.TWENTY], secret:true, hint:"Tap HIDE once the answerer has seen it. The class gets 20 yes-or-no questions."},
   "Hot Potato":            {kind:"random", go:"PASS!", stop:"STOP!", min:6, max:20, hint:"Pass the potato until the buzzer. Holding it when it stops? You're out!"},
   "Musical Chairs":        {kind:"random", go:"WALK!", stop:"SIT!", min:8, max:25, hint:"Walk around the chairs until the buzzer. Grab a seat!"},
   "Four Corners":          {kind:"corners", hint:"Pick a corner before the countdown ends!"},
@@ -632,7 +632,7 @@ function buildReel(s) {
   const show = btn("SHOW", "secondary", toggleSecret); show.style.display = "none";
   const done = btn("DONE", "secondary small", closeScreen);
   btns.append(go, show, done);
-  let revealed = false, rolling = false;
+  let revealed = true, rolling = false;
   screenAction = roll;
 
   function toggleSecret() {
@@ -643,7 +643,7 @@ function buildReel(s) {
   }
   function roll() {
     if (rolling) return;
-    ensureAudio(); rolling = true; go.disabled = true; show.style.display = "none"; revealed = false;
+    ensureAudio(); rolling = true; go.disabled = true; show.style.display = "none"; revealed = true; show.textContent = "HIDE";
     if (timer) timer.stop();
     lead.className = "lead"; lead.textContent = s.lead;
     let remaining = slots.length;
@@ -655,7 +655,6 @@ function buildReel(s) {
         d.textContent = w; tickSound(); step++;
         if (step < total) { wait = Math.min(wait * 1.11, 320); later(tickStep, wait); return; }
         d._word = w; d.className = "slot hit"; slotStopSound();
-        if (s.secret) { d.textContent = "? ? ?"; d.classList.add("secret"); }
         if (--remaining === 0) later(finish, 250);
       })();
     });
