@@ -6,9 +6,9 @@ A giant 16-bit arcade wheel for picking an indoor recess activity. You stand fac
 
 Open `index.html` in any browser. No build step, no dependencies. Works on a projector or smartboard; use the Fullscreen button.
 
-**Helper screens.** Fourteen of the games open a simple pop-up when you tap "Let's Play!":
+**Helper screens.** Thirteen of the games open a simple pop-up when you tap "Let's Play!":
 
-- **Word slots** (Speed Doodle, Telephone, Would You Rather, Charades, Pictionary, Scavenger Hunt, Simon Says, Stretch & Yoga, 20 Questions): the words roll like a slot machine with the same quiet beeps and stop one at a time with a ding. Every slot has 30 options written to read as one sentence. Secret games (Charades, Pictionary, Telephone, 20 Questions) hide the answer behind a SHOW / HIDE button so only one student sees it.
+- **Word slots** (Speed Doodle, Telephone, Would You Rather, Charades, Pictionary, Scavenger Hunt, Stretch & Yoga, 20 Questions): the words roll like a slot machine with the same quiet beeps and stop one at a time with a ding. Every slot has 30 options written to read as one sentence. Secret games (Charades, Pictionary, Telephone, 20 Questions) hide the answer behind a SHOW / HIDE button so only one student sees it.
 - **Timers**: Hot Potato and Musical Chairs play a beat and buzz at a random moment. Four Corners counts down from 10 and then reveals a corner. Human Knot has a stopwatch that tracks the best time. Mystery Trash has a two-minute cleanup clock, and the drawing and acting games have 30- or 60-second timers.
 
 Press **Space** inside any pop-up to roll or start.

@@ -122,7 +122,6 @@
     padding:26px 30px 24px;text-align:center}
   .gtitle{font-family:var(--pixel);font-size:clamp(14px,2.2vw,24px);color:var(--edu-orange);margin-bottom:12px}
   .lead{font-family:var(--pixel);font-size:clamp(12px,1.6vw,18px);line-height:1.5;color:var(--edu-pacific);margin:10px 0;min-height:1.5em}
-  .lead.trick{color:var(--edu-pink)}
   .slots{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin:12px 0}
   .slot{font-family:var(--pixel);font-size:clamp(12px,1.9vw,22px);line-height:1.5;background:#fff;border:4px solid var(--edu-midnight);
     box-shadow:5px 5px 0 var(--edu-midnight);padding:14px 18px;min-width:160px;max-width:100%}
@@ -536,7 +535,6 @@ const L = {
   CHARADES: ["a monkey","a penguin","a chicken","a snake","a ballerina","a firefighter","brushing your teeth","a basketball player","a crying baby","a robot","a kangaroo","a surfer","a rock star","a ninja","a chef cooking","a sleepy cat","a dinosaur","a superhero flying","a gorilla","a frog","a doctor","a swimmer","an elephant","a tightrope walker","a zombie","a bee","a pirate","an astronaut","a dog digging a hole","a drummer"],
   PICT: ["a rainbow","a pizza","a dinosaur","a castle","a rocket ship","an umbrella","a snowman","a bicycle","an octopus","a school bus","a birthday cake","a volcano","a giraffe","an ice cream cone","a treasure chest","a lighthouse","a butterfly","a robot","a hot dog","a roller coaster","an elephant","a pirate ship","a tornado","a hamburger","a dragon","a skateboard","a campfire","a spider web","a mermaid","a flashlight"],
   SCAV: ["blue","red","round","soft","that starts with the letter B","that starts with the letter S","with a zipper","made of wood","made of metal","smaller than your hand","with words on it","with numbers on it","that smells good","that makes noise","bumpy","smooth","shiny","green","yellow","you can write with","you can wear","that has a button","striped","that opens and closes","bigger than your head","with a picture of an animal","square","that bends","with a circle on it","orange"],
-  SIMON: ["touch your toes","hop on one foot","pat your head","spin around","clap three times","wiggle your fingers","flap like a bird","stand like a flamingo","make a silly face","touch your nose","do five jumping jacks","stomp your feet","pretend to swim","roar like a lion","tiptoe in place","give yourself a hug","point to the ceiling","march in place","wave both hands","pretend to sleep","jump up high","rub your tummy","do a robot dance","shake like jelly","pretend to drive a car","touch your knees","balance on one foot","run in slow motion","sit criss-cross","freeze like a statue"],
   TEL_WHO: ["My grandma","The principal","A purple elephant","Our class hamster","A ninja","The lunch lady","A sleepy dragon","My neighbor's cat","The tooth fairy","A giant robot","The school bus driver","A talking banana","My little brother","A friendly monster","The mail carrier","A pirate captain","A dancing penguin","The librarian","An alien","A magic frog","Our gym teacher","A wizard","The janitor","A singing cow","My best friend","A superhero","A baby goat","A queen","A snowman","A tiny mouse"],
   TEL_DID: ["ate forty pancakes","danced on the roof","lost a purple sock","rode a camel to school","sang opera","built a spaghetti castle","found a golden toothbrush","juggled seven watermelons","painted the moon green","tickled a crocodile","sneezed really loud","hid under the couch","baked a cake shaped like a shoe","wore pajamas","tripped over a pickle","taught a goldfish to whistle","slipped on a banana peel","drove a tiny car","wrote a poem about broccoli","won a hopping contest","lost both shoes","hiccupped for an hour","rode a unicycle","told a terrible joke","whispered to a tomato","bounced a watermelon","knitted a sweater for a giraffe","ate ice cream with a fork","did a cartwheel","invented a new sandwich"],
   TEL_WHERE: ["at the grocery store","on a Tuesday","during the spelling test","in the swimming pool","behind the bowling alley","at midnight","on top of a mountain","in the library","at the dentist","while wearing a tutu","on the way to Mars","in a rainstorm","at the zoo","under the kitchen table","at the birthday party","in a hot air balloon","at the North Pole","on the playground","in a jar of pickles","at the car wash","during lunch","on a bouncy castle","inside a giant pumpkin","at the beach","on a roller coaster","in the principal's office","in my backpack","at the movie theater","on a submarine","on a very windy day"],
@@ -549,7 +547,6 @@ const SCREENS = {
   "Charades":              {kind:"reel", lead:"Act out...", slots:[L.CHARADES], secret:true, timer:60, hint:"Only the actor looks! Tap SHOW when the class looks away."},
   "Whiteboard Pictionary": {kind:"reel", lead:"Draw...", slots:[L.PICT], secret:true, timer:60, hint:"Only the artist looks! Tap SHOW when the class looks away."},
   "Scavenger Hunt":        {kind:"reel", lead:"Find something...", slots:[L.SCAV], timer:30, hint:"First one back in their seat holding it wins the point."},
-  "Simon Says":            {kind:"reel", lead:"...", slots:[L.SIMON], simon:true, hint:"Watch out! Sometimes Simon didn't say."},
   "Telephone":             {kind:"reel", lead:"Whisper this...", slots:[L.TEL_WHO, L.TEL_DID, L.TEL_WHERE], secret:true, hint:"Only the first person in the circle looks!"},
   "Stretch & Yoga":        {kind:"reel", lead:"Hold this pose...", slots:[L.YOGA], timer:30, hint:"Hold it for 30 seconds. Breathe!"},
   "20 Questions":          {kind:"reel", lead:"The secret thing is...", slots:[L.TWENTY], secret:true, hint:"Only the person answering looks! The class gets 20 yes-or-no questions."},
@@ -648,7 +645,7 @@ function buildReel(s) {
     if (rolling) return;
     ensureAudio(); rolling = true; go.disabled = true; show.style.display = "none"; revealed = false;
     if (timer) timer.stop();
-    lead.className = "lead"; lead.textContent = s.simon ? "..." : s.lead;
+    lead.className = "lead"; lead.textContent = s.lead;
     let remaining = slots.length;
     slots.forEach((d, k) => {
       d.className = "slot spin";
@@ -666,11 +663,6 @@ function buildReel(s) {
   function finish() {
     dingSound(); rolling = false; go.disabled = false; go.textContent = "NEW ONE";
     if (s.secret) show.style.display = "";
-    if (s.simon) {
-      const trick = Math.random() < 0.3;
-      lead.textContent = trick ? "(Simon didn't say!)" : "Simon says...";
-      lead.className = trick ? "lead trick" : "lead";
-    }
   }
 }
 
