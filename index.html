@@ -143,9 +143,6 @@
   .gtimer.done{color:var(--edu-orange);animation:blink .4s steps(2,end) infinite}
   .gsub{font-size:clamp(18px,2vw,24px);line-height:1.2;color:var(--edu-dark-grey);margin:6px 0}
   .gbtns{margin-top:14px}
-  .stagebar{display:flex;justify-content:center;gap:10px;margin:8px 0 4px}
-  .dot{width:16px;height:16px;background:#fff;border:3px solid var(--edu-midnight)}
-  .dot.past{background:var(--edu-pacific)} .dot.now{background:var(--edu-sunshine)}
   .btn.small{font-size:12px;padding:10px 14px}
   .btn:disabled{opacity:.45;cursor:default;transform:none;box-shadow:5px 5px 0 var(--edu-midnight)}
 
@@ -226,7 +223,7 @@ const ACTIVITIES = [
   {e:"📞", n:"Telephone",               d:"Sit in a circle. The first person whispers a sentence to their neighbor, who passes it on. The last person says it out loud. See how silly it got!"},
   {e:"✊", n:"Rock Paper Scissors",      d:"Find a partner and play. The loser becomes the winner's biggest cheerleader and follows them to the next match. Keep going until one champion has the whole class cheering!"},
   {e:"🤫", n:"Silent Ball",             d:"Everyone stands on or beside their desk. Toss a soft ball around the room in total silence. Drop it, make a bad throw, or make a sound and you sit down. Last one standing wins."},
-  {e:"🌧️", n:"Rainstorm",               d:"Make a rainstorm with your bodies! Follow the conductor: rub your palms for a drizzle, snap your fingers for rain, pat your knees for a downpour, stomp for thunder, then bring it back down to silence. Eyes closed makes it even better."},
+  {e:"🦁", n:"Sleeping Lions",          d:"Everyone lies on the floor as still and silent as a sleeping lion. One or two hunters sneak around trying to make the lions giggle or move, without touching them. Any lion who moves becomes a hunter. The last lion still sleeping wins!"},
   {e:"🤥", n:"Two Truths & a Lie",      d:"Each student shares three statements about themselves: two true and one false. The class votes on which one is the lie. Surprise your friends!"},
   {e:"🧘", n:"Stretch & Yoga",          d:"Students take turns leading the class in a stretch or yoga pose for 30 seconds each: tree pose, downward dog, toe touches, arm circles. Breathe and relax."},
   {e:"📖", n:"One-Word Story",          d:"Sit in a circle and build a story one word at a time. Each person adds just one word. Try to make it to the end of a sentence without laughing!"},
@@ -552,7 +549,7 @@ const SCREENS = {
   "Would You Rather":      {kind:"reel", lead:"Would you rather...", slots:[L.WYR_A, L.WYR_B], join:"OR", hint:"Left side of the room for the first one, right side for the second."},
   "Charades":              {kind:"reel", lead:"Act out...", slots:[L.CHARADES], secret:true, timer:60, hint:"Tap HIDE once the actor has seen it."},
   "Whiteboard Pictionary": {kind:"reel", lead:"Draw...", slots:[L.PICT], secret:true, timer:60, hint:"Tap HIDE once the artist has seen it."},
-  "Rainstorm":             {kind:"stages", every:12, hint:"Press START and follow along. Each stage lasts 12 seconds. Quiet voices, listening ears.", stages:[["Drizzle","rub your palms together"],["Light rain","snap your fingers"],["Downpour","pat your knees"],["Thunder!","stomp your feet"],["Downpour","pat your knees"],["Light rain","snap your fingers"],["Drizzle","rub your palms together"],["Silence","hands in your lap, listen"]]},
+  "Sleeping Lions":        {kind:"countdown", seconds:180, hint:"Lions, get still! Hunters, no touching. Last lion sleeping when the clock runs out wins."},
   "Telephone":             {kind:"reel", lead:"Whisper this...", slots:[L.TEL_WHO, L.TEL_DID, L.TEL_WHERE], secret:true, hint:"Tap HIDE once the first person has read it."},
   "Stretch & Yoga":        {kind:"reel", lead:"Hold this pose...", slots:[L.YOGA], timer:30, hint:"Hold it for 30 seconds. Breathe!"},
   "20 Questions":          {kind:"reel", lead:"The secret thing is...", slots:[L.TWENTY], secret:true, hint:"Tap HIDE once the answerer has seen it. The class gets 20 yes-or-no questions."},
@@ -582,7 +579,7 @@ function openScreen(name) {
   gameBox.appendChild(el("div", "gtitle", name.toUpperCase()));
   if (s.hint) gameBox.appendChild(el("div", "gsub", s.hint));
   gameOverlay.classList.add("show");   // visible first so the builder can measure its slots
-  ({ reel: buildReel, random: buildRandom, corners: buildCorners, stopwatch: buildStopwatch, countdown: buildCountdown, stages: buildStages })[s.kind](s);
+  ({ reel: buildReel, random: buildRandom, corners: buildCorners, stopwatch: buildStopwatch, countdown: buildCountdown })[s.kind](s);
   return true;
 }
 function closeScreen() { screenOpen = false; screenAction = null; clearScreenTimers(); gameOverlay.classList.remove("show"); gameBox.innerHTML = ""; }
@@ -757,34 +754,6 @@ function buildStopwatch(s) {
   function stop(finished) {
     if (iv) clearInterval(iv); iv = null; running = false; go.textContent = "START";
     if (finished && elapsed > 0) { dingSound(); if (bestTime === null || elapsed < bestTime) { bestTime = elapsed; best.textContent = "NEW BEST TIME: " + big.textContent; } }
-  }
-}
-
-/* --- Stages (Rainstorm conductor) --- */
-function buildStages(s) {
-  const big = el("div", "big", "READY?"); gameBox.appendChild(big);
-  const sub = el("div", "lead", "Press START to begin the storm"); gameBox.appendChild(sub);
-  const bar = el("div", "stagebar"); gameBox.appendChild(bar);
-  const dots = s.stages.map(() => { const d = el("span", "dot"); bar.appendChild(d); return d; });
-  const btns = el("div", "gbtns"); gameBox.appendChild(btns);
-  const go = btn("START", "primary", start);
-  btns.append(go, btn("DONE", "secondary small", closeScreen));
-  let running = false;
-  screenAction = start;
-  function show(i) {
-    big.textContent = s.stages[i][0]; big.className = "big" + (s.stages[i][0].includes("!") ? " alert" : "");
-    sub.textContent = s.stages[i][1];
-    dots.forEach((d, k) => d.className = "dot" + (k < i ? " past" : k === i ? " now" : ""));
-  }
-  function start() {
-    if (running) return;
-    ensureAudio(); running = true; go.disabled = true;
-    let i = 0; show(i); slotStopSound();
-    const iv = every(() => {
-      i++;
-      if (i >= s.stages.length) { clearInterval(iv); running = false; go.disabled = false; go.textContent = "AGAIN"; dingSound(); return; }
-      show(i); slotStopSound();
-    }, s.every * 1000);
   }
 }
 
