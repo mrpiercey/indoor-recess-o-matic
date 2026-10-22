@@ -131,9 +131,9 @@
   .slot.secret{background:var(--edu-midnight);color:var(--edu-sunshine)}
   @keyframes hit{0%{transform:scale(1.12)}100%{transform:none}}
   .join{flex-basis:100%;font-family:var(--pixel);font-size:clamp(12px,1.6vw,18px);color:var(--edu-dark-grey)}
-  .slots.pair{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center}
+  .slots.pair{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:18px;align-items:stretch}
   .slots.pair .slot{min-width:0;width:auto;max-width:none}
-  .slots.pair .join{flex-basis:auto;font-size:clamp(18px,3vw,36px);color:var(--edu-orange);text-shadow:3px 3px 0 var(--edu-midnight)}
+  .slots.pair .join{flex-basis:auto;align-self:center;font-size:clamp(18px,3vw,36px);color:var(--edu-orange);text-shadow:3px 3px 0 var(--edu-midnight)}
   .big{font-family:var(--pixel);font-size:clamp(44px,10vw,112px);line-height:1.15;color:var(--edu-midnight);text-shadow:5px 5px 0 var(--edu-sunshine);margin:16px 0}
   .big.alert{color:var(--edu-orange);text-shadow:5px 5px 0 var(--edu-midnight);animation:blink .4s steps(2,end) infinite}
   .big.go{color:var(--edu-green);animation:bounce .5s steps(4) infinite alternate}
@@ -631,6 +631,7 @@ function buildReel(s) {
   if (s.suffix) row.appendChild(el("span", "join", s.suffix));
   // size every slot to its longest word so nothing jumps around while rolling
   function sizeSlots() {
+    let pairH = 0;
     slots.forEach(d => {
       d.style.width = ""; d.style.minHeight = "";
       let maxW = 0, maxH = 0;
@@ -639,7 +640,9 @@ function buildReel(s) {
       d.textContent = "?";
       if (!s.join) d.style.width = maxW + "px";
       d.style.minHeight = maxH + "px";
+      pairH = Math.max(pairH, maxH);
     });
+    if (s.join) slots.forEach(d => { d.style.minHeight = pairH + "px"; });   // side-by-side boxes match exactly
   }
   sizeSlots();
   document.fonts.ready.then(sizeSlots);
