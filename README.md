@@ -4,7 +4,9 @@ Live site: https://mrpiercey.github.io/indoor-recess-o-matic/
 
 A giant 16-bit arcade wheel for picking an indoor recess activity. You stand face-on to the wheel: pull the lever on the right (drag it down, click it, or press **Space**) and 20 games roll past you, beeping as each one goes by and dinging when one lands in the window.
 
-Open `index.html` in any browser. No build step, no dependencies. Works on a projector or smartboard; use the Fullscreen button.
+Open `index.html` in any browser. No build step, no dependencies. Works on a projector or smartboard (use the Fullscreen button) and on phones, where the lever moves to a strip along the bottom in portrait.
+
+On load, a blinking PULL LEVER TO START prompt waits for the first tap, click, or key press, which plays a short chiptune boot jingle. The prompt comes back after a minute of no activity.
 
 **Helper screens.** Thirteen of the games open a simple pop-up when you tap "Let's Play!":
 

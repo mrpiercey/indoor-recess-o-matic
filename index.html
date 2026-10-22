@@ -16,7 +16,7 @@
     --edu-teal:#00AFAB; --edu-light-teal:#2AD2C9; --edu-green:#6FB300; --edu-light-green:#BDF22E;
     --edu-dark-grey:#333333; --edu-light-grey:#666666; --edu-cream:#FFF7ED; --edu-white:#FFFFFF;
     --pixel:"Press Start 2P",monospace; --mono:"VT323",monospace;
-    --lever-w:200px; --marquee-h:84px;
+    --lever-w:200px; --lever-h:0px; --marquee-h:84px;
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden;color:var(--edu-cream);
@@ -73,6 +73,15 @@
   #leverWrap.busy #rod{cursor:not-allowed}
   @keyframes blink{0%{opacity:1}50%{opacity:0}}
   #leverLabel{position:absolute;left:0;right:0;bottom:26px;text-align:center;font-family:var(--pixel);font-size:10px;color:var(--edu-tech);line-height:1.8}
+
+  /* ---------- Attract prompt ---------- */
+  #attract{position:fixed;left:0;top:calc(var(--marquee-h) + 8px);right:var(--lever-w);bottom:var(--lever-h);z-index:8;
+    display:flex;align-items:center;justify-content:center;pointer-events:none;transition:opacity .2s steps(3)}
+  #attract.hide{opacity:0}
+  #attract .box{background:var(--edu-midnight);color:var(--edu-sunshine);font-family:var(--pixel);font-size:clamp(13px,2.6vw,30px);
+    line-height:1.6;text-align:center;padding:22px 30px;border:4px solid var(--edu-cream);box-shadow:0 0 0 6px var(--edu-midnight),10px 10px 0 6px #000;
+    animation:blink 1.1s steps(2,end) infinite}
+  #attract .arrow{display:inline-block;color:var(--edu-orange)}
 
   /* ---------- Result box (RPG dialog style) ---------- */
   #overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:#0009}
@@ -161,6 +170,35 @@
     #leverLabel{display:none}
     #fs{display:none}
   }
+  @media (max-width:760px) and (orientation:portrait){
+    :root{--lever-w:0px;--lever-h:150px}
+    #leverWrap{top:auto;bottom:0;left:0;right:0;width:auto;height:var(--lever-h);border-left:0;border-top:6px solid var(--edu-pacific)}
+    #leverLogo{top:50%;left:20px;transform:translateY(-50%);width:64px;height:64px}
+    #leverInner{top:auto;bottom:0;left:auto;right:14px;width:170px;height:144px;transform:none}
+    #rod{height:72px;bottom:42px}
+    #knob{width:54px;height:54px}
+    #leverBase{width:110px;height:58px}
+    #leverHint{top:50%;left:auto;right:calc(100% + 6px);transform:translateY(-50%);font-size:14px;white-space:nowrap}
+    #marquee{padding-right:112px}
+    #marquee h1{font-size:12px;line-height:1.4}
+    #gear{top:calc(var(--marquee-h) / 2);transform:translateY(-50%);right:12px;left:auto;bottom:auto;padding:8px 10px}
+  }
+  @media (max-height:520px) and (orientation:landscape){
+    :root{--marquee-h:56px}
+    #marquee p{display:none}
+    #marquee h1{font-size:14px}
+    #leverLogo{width:44px;height:44px;top:6px}
+    #leverInner{height:300px;top:auto;bottom:0;transform:none}
+    #rod{height:160px;bottom:52px}
+    #knob{width:62px;height:62px}
+    #leverBase{width:120px;height:80px}
+    #leverHint{top:0;font-size:14px}
+    #leverLabel{display:none}
+    .hud{bottom:10px;padding:8px 10px;font-size:10px}
+    #fs{left:130px}
+    #attract .arrow{transform:rotate(90deg)}
+    #card,#gameBox{padding:20px 16px 18px}
+  }
 </style>
 </head>
 <body>
@@ -185,6 +223,8 @@
   </div>
   <div id="leverLabel">DRAG DOWN<br>OR PRESS SPACE</div>
 </div>
+
+<div id="attract"><div class="box">PULL LEVER<br>TO START <span class="arrow">&#9654;</span></div></div>
 
 <div id="overlay">
   <div id="card">
@@ -250,7 +290,7 @@ const active = () => ACTIVITIES.filter(a => !disabled.has(a.n));
 
 let rot = 0, spinning = false, winner = -1, kick = 0, celebrateUntil = 0;
 // render-resolution units (low-res, upscaled with pixelated scaling for the 16-bit look)
-let PX = 3, W = 0, H = 0, cx = 0, cy = 0, R = 0, D = 0, Wd = 0, drumTop = 0;
+let PX = 3, W = 0, H = 0, cx = 0, cy = 0, R = 0, D = 0, Wd = 0, drumTop = 0, drumBottom = 0;
 
 /* ---------------- Canvas ---------------- */
 const canvas = document.getElementById("drum");
@@ -267,12 +307,14 @@ function resize() {
   for (const c of [canvas, cCanvas]) { c.width = W; c.height = H; }
   ctx.imageSmoothingEnabled = false; cctx.imageSmoothingEnabled = false;
   const leverW = cssPx("--lever-w") / PX;
+  const leverH = cssPx("--lever-h") / PX;
   drumTop = (cssPx("--marquee-h") + 8) / PX;
   const availW = W - leverW;
-  const availH = H - drumTop;
+  const availH = H - drumTop - leverH;
   cx = Math.round(availW / 2);
   cy = Math.round(drumTop + availH / 2);
   R = availH * 0.78;
+  drumBottom = H - leverH;
   D = R * 2.4;
   Wd = availW * 0.94;
   // 2x2 checker dither pattern for mid-depth shading
@@ -327,30 +369,41 @@ function draw(now) {
     ctx.save();
     ctx.translate(cx, pm.y);
     ctx.scale(pm.f, pm.f * c);
-    let fs = Math.min(18, Math.max(8, Math.round(panelH * 0.2)));
+    const narrow = Wd < 170;                          // phone portrait: skip corner emoji, allow two lines
+    let fs = Math.min(18, Math.max(narrow ? 6 : 8, Math.round(panelH * 0.2)));
     const em = fs * 1.8;
     const edge = Wd / 2 - em * 0.9;                   // emoji sit in the left and right corners
+    const maxW = narrow ? Wd * 0.9 : Wd * 0.66;
     ctx.font = pxFont(fs);
-    while (ctx.measureText(items[i].n).width > Wd * 0.66 && fs > 6) { fs -= 1; ctx.font = pxFont(fs); }
+    while (ctx.measureText(items[i].n).width > maxW && fs > (narrow ? 6 : 6)) { fs -= 1; ctx.font = pxFont(fs); }
+    let lines = [items[i].n];
+    if (ctx.measureText(items[i].n).width > maxW) {   // split at the space nearest the middle
+      const words = items[i].n.split(" "); let best = 1, bestDiff = Infinity;
+      for (let k = 1; k < words.length; k++) { const diff = Math.abs(words.slice(0, k).join(" ").length - words.slice(k).join(" ").length); if (diff < bestDiff) { bestDiff = diff; best = k; } }
+      lines = [words.slice(0, best).join(" "), words.slice(best).join(" ")];
+    }
     ctx.textBaseline = "middle"; ctx.textAlign = "center";
-    ctx.font = emojiFont(em); ctx.fillStyle = "#fff"; ctx.globalAlpha = 1;
-    ctx.fillText(items[i].e, -edge, 1);
-    ctx.fillText(items[i].e, edge, 1);
+    if (!narrow) {
+      ctx.font = emojiFont(em); ctx.fillStyle = "#fff"; ctx.globalAlpha = 1;
+      ctx.fillText(items[i].e, -edge, 1);
+      ctx.fillText(items[i].e, edge, 1);
+    }
     ctx.font = pxFont(fs);
-    ctx.fillStyle = MIDNIGHT;
-    ctx.fillText(items[i].n, 2, 2);                    // hard pixel shadow
-    ctx.fillStyle = "#fff";
-    ctx.fillText(items[i].n, 0, 0);
+    lines.forEach((ln, li) => {
+      const y = (li - (lines.length - 1) / 2) * fs * 1.5;
+      ctx.fillStyle = MIDNIGHT; ctx.fillText(ln, 2, y + 2);   // hard pixel shadow
+      ctx.fillStyle = "#fff"; ctx.fillText(ln, 0, y);
+    });
     ctx.restore();
   }
 
   // housing posts on each side of the drum
   const postW = Math.max(6, Math.round(W * 0.012));
   for (const x of [cx - Wd / 2 - postW, cx + Wd / 2]) {
-    ctx.fillStyle = MIDNIGHT; ctx.fillRect(x - 2, drumTop, postW + 4, H - drumTop);
-    ctx.fillStyle = PACIFIC; ctx.fillRect(x, drumTop, postW, H - drumTop);
-    ctx.fillStyle = SPACE; ctx.fillRect(x + postW - 2, drumTop, 2, H - drumTop);
-    for (let y = drumTop + 6; y < H; y += 14) { ctx.fillStyle = "#4FD2FF"; ctx.fillRect(x + 2, y, postW - 4, 2); }
+    ctx.fillStyle = MIDNIGHT; ctx.fillRect(x - 2, drumTop, postW + 4, drumBottom - drumTop);
+    ctx.fillStyle = PACIFIC; ctx.fillRect(x, drumTop, postW, drumBottom - drumTop);
+    ctx.fillStyle = SPACE; ctx.fillRect(x + postW - 2, drumTop, 2, drumBottom - drumTop);
+    for (let y = drumTop + 6; y < drumBottom; y += 14) { ctx.fillStyle = "#4FD2FF"; ctx.fillRect(x + 2, y, postW - 4, 2); }
   }
 
   // selection window at the front
@@ -435,10 +488,40 @@ function dingSound() {
   [[523, 0], [659, 1], [784, 2], [1047, 3]].forEach(([f, i]) => beep("square", f, t + 0.3 + i * 0.09, 0.22, 0.09));
 }
 
+/* ---------------- Boot jingle + attract prompt ---------------- */
+const attract = document.getElementById("attract");
+let booted = false, bootTime = -1e9, idleTimer = null;
+function jingle() {
+  if (muted || !actx) return;
+  const t = actx.currentTime;
+  // melody (square) with a soft triangle bass: a little console boot chime
+  [[659, 0, .13], [784, .12, .13], [1047, .24, .13], [1319, .36, .55]].forEach(([f, d, l]) => beep("square", f, t + d, l, 0.11));
+  [[131, 0, .3], [196, .24, .3], [262, .36, .6]].forEach(([f, d, l]) => beep("triangle", f, t + d, l, 0.16));
+  beep("sine", 2637, t + .36, .5, 0.05);
+}
+function boot() {
+  if (booted) return;
+  booted = true; bootTime = performance.now();
+  ensureAudio(); jingle();
+  attract.classList.add("hide");
+}
+function showAttract() { if (!spinning && !screenOpen && !overlay.classList.contains("show")) attract.classList.remove("hide"); }
+function touched() {
+  if (!booted) boot(); else attract.classList.add("hide");
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(showAttract, 60000);     // idle for a minute: invite the next player
+}
+document.addEventListener("pointerdown", touched, true);
+document.addEventListener("keydown", touched, true);
+idleTimer = setTimeout(showAttract, 60000);
+
 /* ---------------- Spin ---------------- */
 const leverWrap = document.getElementById("leverWrap");
+let spinPending = false;
 function spin() {
-  if (spinning || active().length < 2) return;
+  if (spinning || spinPending || active().length < 2) return;
+  const wait = Math.max(0, 1000 - (performance.now() - bootTime));
+  if (wait > 0) { spinPending = true; leverWrap.classList.add("busy"); setTimeout(() => { spinPending = false; spin(); }, wait); return; }
   ensureAudio();
   hideResult();
   spinning = true; winner = -1;
@@ -472,7 +555,7 @@ function land(idx) {
 const overlay = document.getElementById("overlay");
 let currentResult = null;
 function showResult(a) {
-  currentResult = a;
+  currentResult = a; attract.classList.add("hide");
   document.getElementById("playBtn").textContent = SCREENS[a.n] ? "LET'S PLAY! \u25B6" : "LET'S PLAY!";
   document.getElementById("rEmoji").textContent = a.e;
   document.getElementById("rName").textContent = a.n.toUpperCase();
@@ -486,7 +569,8 @@ overlay.addEventListener("click", e => { if (e.target === overlay) hideResult();
 
 /* ---------------- Lever ---------------- */
 const rod = document.getElementById("rod");
-const MAX_ANGLE = 105, MAX_DRAG = 220;
+const MAX_ANGLE = 105;
+const maxDrag = () => Math.max(60, rod.offsetHeight * 0.66);
 let dragging = false, startY = 0, angle = 0, pulledEnough = false;
 function setAngle(a) { angle = Math.max(0, Math.min(MAX_ANGLE, a)); rod.style.setProperty("--a", angle + "deg"); }
 rod.addEventListener("pointerdown", e => {
@@ -498,7 +582,7 @@ rod.addEventListener("pointerdown", e => {
 });
 rod.addEventListener("pointermove", e => {
   if (!dragging) return;
-  setAngle(((e.clientY - startY) / MAX_DRAG) * MAX_ANGLE);
+  setAngle(((e.clientY - startY) / maxDrag()) * MAX_ANGLE);
   if (angle >= MAX_ANGLE * 0.6) pulledEnough = true;
 });
 function releaseLever() {
