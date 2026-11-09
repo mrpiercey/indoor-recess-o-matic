@@ -343,6 +343,7 @@ const active = () => ACTIVITIES.filter(a => !disabled.has(a.n));
 
 let rot = 0, spinning = false, winner = -1, kick = 0, celebrateUntil = 0;
 // render-resolution units (low-res, upscaled with pixelated scaling for the 16-bit look)
+let availWG = 0;
 let PX = 3, W = 0, H = 0, cx = 0, cy = 0, R = 0, D = 0, Wd = 0, drumTop = 0, drumBottom = 0;
 
 /* ---------------- Canvas ---------------- */
@@ -363,6 +364,7 @@ function resize() {
   const leverH = cssPx("--lever-h") / PX;
   drumTop = (cssPx("--marquee-h") + 8) / PX;
   const availW = W - leverW;
+  availWG = availW;
   const availH = H - drumTop - leverH;
   cx = Math.round(availW / 2);
   cy = Math.round(drumTop + availH / 2);
@@ -387,8 +389,40 @@ function frontIndex() {
 }
 function pxFont(size) { return `${Math.max(6, Math.round(size))}px "Press Start 2P", monospace`; }
 
+/* side cabinet panels that fill the space beside the drum */
+function drawCabinet(x0, x1, now) {
+  x0 = Math.round(x0); x1 = Math.round(x1);
+  const w = x1 - x0; if (w < 10) return;
+  const top = Math.round(drumTop) - 8, bot = Math.round(drumBottom), h = bot - top;
+  ctx.fillStyle = SPACE; ctx.fillRect(x0, top, w, h);
+  const m = Math.max(4, Math.round(w * 0.12));
+  ctx.fillStyle = MIDNIGHT; ctx.fillRect(x0 + m - 2, top + m - 2, w - m * 2 + 4, h - m * 2 + 4);
+  ctx.fillStyle = "#06374a"; ctx.fillRect(x0 + m, top + m, w - m * 2, h - m * 2);
+  ctx.fillStyle = "rgba(255,255,255,.18)"; ctx.fillRect(x0 + m, top + m, w - m * 2, 2);
+  // rivets in the corners
+  ctx.fillStyle = "#4FD2FF";
+  for (const rx of [x0 + Math.round(m / 2) - 1, x1 - Math.round(m / 2) - 1])
+    for (const ry of [top + Math.round(m / 2) - 1, bot - Math.round(m / 2) - 1]) ctx.fillRect(rx, ry, 3, 3);
+  // columns of marquee bulbs (chase while spinning or celebrating)
+  const celebrating = !spinning && now < celebrateUntil;
+  const cols = w - m * 2 > 40 ? 2 : 1, step = 14, gapH = Math.max(14, Math.round(R * (Math.PI * 2 / Math.max(active().length, 1)) * 0.35));
+  for (let c = 0; c < cols; c++) {
+    const bx = Math.round(x0 + m + ((c + 1) / (cols + 1)) * (w - m * 2));
+    let k = 0;
+    for (let y = top + m + 8; y < bot - m - 4; y += step, k++) {
+      if (Math.abs(y - cy) < gapH) continue;
+      const lit = (spinning || celebrating) ? ((k + c + Math.floor(now / 110)) % 2 === 0) : ((k + c) % 2 === 0);
+      ctx.fillStyle = MIDNIGHT; ctx.fillRect(bx - 3, y - 3, 6, 6);
+      ctx.fillStyle = lit ? "#FFF3C4" : "#8a6410"; ctx.fillRect(bx - 2, y - 2, 4, 4);
+    }
+  }
+}
+
 function draw(now) {
   ctx.clearRect(0, 0, W, H);
+  { const pw = Math.max(6, Math.round(W * 0.012));
+    drawCabinet(0, cx - Wd / 2 - pw - 2, now);
+    drawCabinet(cx + Wd / 2 + pw + 2, availWG, now); }
   const items = active(), n = items.length, sg = seg();
   const panelH = sg * R;
   const front = frontIndex();
