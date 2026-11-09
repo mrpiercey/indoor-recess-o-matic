@@ -210,7 +210,7 @@
 <div id="marquee">
   <div class="txt">
     <h1>INDOOR RECESS-O-MATIC</h1>
-    <p>PULL THE LEVER &bull; PLAY THE GAME &bull; 20 INDOOR RECESS ACTIVITIES</p>
+    <p>PULL THE LEVER &bull; PLAY THE GAME &bull; 25 INDOOR RECESS ACTIVITIES</p>
   </div>
 </div>
 <div id="ribbon"></div>
@@ -276,6 +276,11 @@ const ACTIVITIES = [
   {i:"trash-2", n:"Mystery Trash",           d:"The teacher secretly picks one piece of trash or clutter on the floor as the Mystery Trash. Everyone cleans up as fast as they can. Whoever picks up the mystery item wins a prize!"},
   {i:"armchair", n:"Musical Chairs",          d:"Set up chairs in a circle, one fewer than players. The class claps and sings while everyone walks around. When the singing stops, grab a seat! Remove a chair each round."},
   {i:"dices", n:"Board Games & Puzzles",   d:"Free choice time! Grab a board game, card game, or puzzle with a small group. Teach a friend a new game. Be a good sport and clean up when you're done."},
+  {i:"chart-no-axes-column-increasing", n:"Silent Line-Up", d:"No talking allowed! Roll a way to line up, like by birthday or first name A to Z. Use only hand signals and gestures to get in order before time runs out. Then go down the line out loud to check!"},
+  {i:"type", n:"Categories",              d:"Sit in a circle. Roll a category and a letter, like animals that start with B. Go around the circle and each name one. Stuck for five seconds or repeat an answer? Sit out a round. Last one in wins!"},
+  {i:"sparkles", n:"Sparkle",             d:"Stand in a circle. Roll a spelling word, then go around the circle with each person saying the next letter. After the last letter, the next person shouts SPARKLE! and the person after them sits down. Miss a letter and you sit too. Last one standing wins!"},
+  {i:"search", n:"Who Started It?",       d:"One guesser steps into the hall. The class silently picks a secret leader, who starts a motion like clapping or patting their head. Everyone copies, and the leader switches moves when the guesser isn't looking. The guesser gets three tries to find the leader!"},
+  {i:"landmark", n:"Museum Statues",      d:"Everyone strikes a pose and freezes like a museum statue. The night guard walks around trying to make the statues giggle or move, but no touching! Anyone who moves becomes a guard too. Last statue standing wins!"},
 ];
 // Edutopia palette: each panel color paired with a complementary accent for its icon
 const PAIRS = [["#FF4C00","#4FD2FF"],["#0094C7","#FFBC0D"],["#FFBC0D","#532681"],["#6FB300","#E75CAE"],["#E75CAE","#BDF22E"],["#00AFAB","#FF9B0D"],["#A973DF","#FFBC0D"],["#FF9B0D","#004861"],["#4FD2FF","#FF4C00"],["#F27179","#00AFAB"]];
@@ -300,7 +305,12 @@ const ICON_PATHS = {
 "circle-help": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\" /> <path d=\"M12 17h.01\" />",
 "trash-2": "<path d=\"M10 11v6\" /> <path d=\"M14 11v6\" /> <path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\" /> <path d=\"M3 6h18\" /> <path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\" />",
 "armchair": "<path d=\"M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3\" /> <path d=\"M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z\" /> <path d=\"M5 18v2\" /> <path d=\"M19 18v2\" />",
-"dices": "<rect width=\"12\" height=\"12\" x=\"2\" y=\"10\" rx=\"2\" ry=\"2\" /> <path d=\"m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6\" /> <path d=\"M6 18h.01\" /> <path d=\"M10 14h.01\" /> <path d=\"M15 6h.01\" /> <path d=\"M18 9h.01\" />"
+"dices": "<rect width=\"12\" height=\"12\" x=\"2\" y=\"10\" rx=\"2\" ry=\"2\" /> <path d=\"m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6\" /> <path d=\"M6 18h.01\" /> <path d=\"M10 14h.01\" /> <path d=\"M15 6h.01\" /> <path d=\"M18 9h.01\" />",
+"chart-no-axes-column-increasing": "<path d=\"M5 21v-6\" /> <path d=\"M12 21V9\" /> <path d=\"M19 21V3\" />",
+"type": "<path d=\"M12 4v16\" /> <path d=\"M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2\" /> <path d=\"M9 20h6\" />",
+"sparkles": "<path d=\"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z\" /> <path d=\"M20 2v4\" /> <path d=\"M22 4h-4\" /> <circle cx=\"4\" cy=\"20\" r=\"2\" />",
+"search": "<path d=\"m21 21-4.34-4.34\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" />",
+"landmark": "<path d=\"M10 18v-7\" /> <path d=\"M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z\" /> <path d=\"M14 18v-7\" /> <path d=\"M18 18v-7\" /> <path d=\"M3 22h18\" /> <path d=\"M6 18v-7\" />",
 };
 
 // Lucide icons (ISC license, see icons/LICENSE.txt) recolored on the fly
@@ -666,6 +676,10 @@ const L = {
   TEL_WHERE: ["at the grocery store","on a Tuesday","during the spelling test","in the swimming pool","behind the bowling alley","at midnight","on top of a mountain","in the library","at the dentist","while wearing a tutu","on the way to Mars","in a rainstorm","at the zoo","under the kitchen table","at the birthday party","in a hot air balloon","at the North Pole","on the playground","in a jar of pickles","at the car wash","during lunch","on a bouncy castle","inside a giant pumpkin","at the beach","on a roller coaster","in the principal's office","in my backpack","at the movie theater","on a submarine","on a very windy day"],
   YOGA: ["Tree Pose","Downward Dog","Cat Stretch","Cow Stretch","Mountain Pose","Warrior Pose","Child's Pose","Cobra Pose","Butterfly Stretch","Toe Touch","Arm Circles","Neck Rolls","Side Bend Left","Side Bend Right","Flamingo Balance","Chair Pose","Bridge Pose","Star Pose","Airplane Pose","Frog Squat","Shoulder Shrugs","Reach for the Sky","Seated Twist","Happy Baby","Triangle Pose","Boat Pose","Wrist Circles","Ankle Circles","Calf Stretch","Deep Breathing"],
   TWENTY: ["an elephant","a pizza","a school bus","the moon","a toothbrush","a dolphin","a pencil","a snowman","a rainbow","a volcano","a bicycle","a giraffe","a birthday cake","a guitar","the ocean","a fire truck","a penguin","a basketball","a library","a dinosaur","a trampoline","a cactus","a lighthouse","a kangaroo","an umbrella","a roller coaster","a robot","a pumpkin","a submarine","a butterfly"],
+  LINEUP: ["birthday, January to December","first name, A to Z","last name, A to Z","height, shortest to tallest","shoe size, smallest first","letters in your first name","letters in your last name","number of brothers and sisters","favorite number, smallest first","favorite color, rainbow order","favorite animal, A to Z","favorite food, A to Z","favorite fruit, A to Z","favorite sport, A to Z","favorite season, spring first","favorite ice cream, A to Z","the day of the month you were born","first name, Z to A","last name, Z to A","height, tallest to shortest","birthday, December to January","number of pets","teeth you've lost","pockets you're wearing","favorite book, A to Z","dream job, A to Z","favorite holiday, calendar order","middle letter of your first name","favorite dessert, A to Z","favorite planet, closest to the sun"],
+  CATS: ["animals","foods","sports","things in a kitchen","things that are red","book characters","countries","names","jobs","fruits or veggies","things at the beach","things in a backpack","things that fly","things with wheels","instruments","clothes","things that are cold","desserts","body parts","ocean creatures","things in a classroom","games","things that are soft","breakfast foods","bugs","things at a park","action words","things in a toolbox","places in town","things that are round"],
+  CAT_LETTER: ["that start with A","that start with B","that start with C","that start with D","that start with E","that start with F","that start with G","that start with H","that start with I","that start with J","that start with K","that start with L","that start with M","that start with N","that start with O","that start with P","that start with R","that start with S","that start with T","that start with W"],
+  SPELL: ["because","friend","school","beautiful","together","different","library","animal","rainbow","favorite","elephant","birthday","important","dinosaur","morning","answer","people","believe","weather","enough","special","family","finally","teacher","holiday","pumpkin","kitchen","giraffe","adventure","surprise"],
 };
 const SCREENS = {
   "Speed Doodle":          {kind:"reel", lead:"Draw...", slots:[L.DOODLE_WHO, L.DOODLE_DO, L.DOODLE_WHERE], timer:60, hint:"Everyone draws the same thing. 60 seconds!"},
@@ -680,6 +694,11 @@ const SCREENS = {
   "Musical Chairs":        {kind:"random", go:"WALK!", stop:"SIT!", min:8, max:25, hint:"Walk around the chairs until the buzzer. Grab a seat!"},
   "Four Corners":          {kind:"corners", hint:"Pick a corner before the countdown ends!"},
   "Human Knot":            {kind:"stopwatch", hint:"How fast can the class untangle? Try to beat your time."},
+  "Silent Line-Up":        {kind:"reel", lead:"Line up by...", slots:[L.LINEUP], timer:120, hint:"No talking! Hand signals only. Start the clock and beat it."},
+  "Categories":            {kind:"reel", lead:"Name...", slots:[L.CATS, L.CAT_LETTER], hint:"Go around the circle. Five seconds to answer, no repeats!"},
+  "Sparkle":               {kind:"reel", lead:"Spell...", slots:[L.SPELL], hint:"One letter each. After the last letter, the next person shouts SPARKLE!"},
+  "Who Started It?":       {kind:"countdown", seconds:60, done:"TIME'S UP!", hint:"Bring the guesser back in, then start the clock. Three guesses to find the leader!"},
+  "Museum Statues":        {kind:"countdown", seconds:90, done:"MUSEUM CLOSED!", hint:"Freeze! Start the clock. Statues still standing at the end win."},
   "Mystery Trash":         {kind:"countdown", seconds:120, hint:"Teacher: secretly pick the mystery item first. Then start the clock!"},
 };
 
