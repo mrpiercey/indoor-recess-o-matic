@@ -396,20 +396,21 @@ function drawCabinet(x0, x1, now) {
   const top = Math.round(drumTop) - 8, bot = Math.round(drumBottom), h = bot - top;
   ctx.fillStyle = SPACE; ctx.fillRect(x0, top, w, h);
   const m = Math.max(4, Math.round(w * 0.12));
-  ctx.fillStyle = MIDNIGHT; ctx.fillRect(x0 + m - 2, top + m - 2, w - m * 2 + 4, h - m * 2 + 4);
-  ctx.fillStyle = "#06374a"; ctx.fillRect(x0 + m, top + m, w - m * 2, h - m * 2);
-  ctx.fillStyle = "rgba(255,255,255,.18)"; ctx.fillRect(x0 + m, top + m, w - m * 2, 2);
+  const vm = 4;   // thin top/bottom margin so the lights run the full height
+  ctx.fillStyle = MIDNIGHT; ctx.fillRect(x0 + m - 2, top + vm - 2, w - m * 2 + 4, h - vm * 2 + 4);
+  ctx.fillStyle = "#06374a"; ctx.fillRect(x0 + m, top + vm, w - m * 2, h - vm * 2);
+  ctx.fillStyle = "rgba(255,255,255,.18)"; ctx.fillRect(x0 + m, top + vm, w - m * 2, 2);
   // rivets in the corners
   ctx.fillStyle = "#4FD2FF";
   for (const rx of [x0 + Math.round(m / 2) - 1, x1 - Math.round(m / 2) - 1])
-    for (const ry of [top + Math.round(m / 2) - 1, bot - Math.round(m / 2) - 1]) ctx.fillRect(rx, ry, 3, 3);
+    for (const ry of [top + vm + 2, bot - vm - 5]) ctx.fillRect(rx, ry, 3, 3);
   // columns of marquee bulbs (chase while spinning or celebrating)
   const celebrating = !spinning && now < celebrateUntil;
   const cols = w - m * 2 > 40 ? 2 : 1, step = 14, gapH = Math.max(14, Math.round(R * (Math.PI * 2 / Math.max(active().length, 1)) * 0.35));
   for (let c = 0; c < cols; c++) {
     const bx = Math.round(x0 + m + ((c + 1) / (cols + 1)) * (w - m * 2));
     let k = 0;
-    for (let y = top + m + 8; y < bot - m - 4; y += step, k++) {
+    for (let y = top + vm + 8; y <= bot - vm - 6; y += step, k++) {
       if (Math.abs(y - cy) < gapH) continue;
       const lit = (spinning || celebrating) ? ((k + c + Math.floor(now / 110)) % 2 === 0) : ((k + c) % 2 === 0);
       ctx.fillStyle = MIDNIGHT; ctx.fillRect(bx - 3, y - 3, 6, 6);
