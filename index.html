@@ -369,7 +369,7 @@ function resize() {
   R = availH * 0.78;
   drumBottom = H - leverH;
   D = R * 2.4;
-  Wd = availW * 0.94;
+  Wd = Math.min(availW * 0.94, availH * 1.15);   // keep the drum from stretching edge to edge on wide screens
   // 2x2 checker dither pattern for mid-depth shading
   const p = document.createElement("canvas"); p.width = 2; p.height = 2;
   const pc = p.getContext("2d"); pc.fillStyle = "#000000"; pc.fillRect(0, 0, 1, 1); pc.fillRect(1, 1, 1, 1);
