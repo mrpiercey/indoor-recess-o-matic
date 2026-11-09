@@ -15,7 +15,11 @@ A blinking PULL LEVER TO START sits in the wheel's window until the first tap, c
 
 Press **Space** inside any pop-up to roll or start.
 
-**Teacher settings** (bottom-left): turn individual activities on or off, mute sound, or tap the ▶ next to any game to open it directly without spinning (handy for testing or when you already know what you want to play). Choices are saved in the browser.
+**Printables (optional).** Every game has a PDF in `printables/` to print ahead of time. Each one starts with a big rules poster. Games that use materials also get extras: cut-out prompt cards (Charades, Pictionary, Simon Says, Telephone, Would You Rather, 20 Questions, Stretch & Yoga, Silent Line-Up, Sparkle), corner and side-of-the-room signs, student sheets (Speed Doodle, Book Tasting menu, Two Truths & a Lie, Categories, One-Word Story), trackers and scoreboards, museum placards, and winner certificates. Open one from the **PDF** button next to any game in Teacher settings or the link on the result card, or use **PRINT ALL** for everything in one file. Nothing in the game needs them.
+
+To rebuild the PDFs after changing a game or a word list: `pip install reportlab svglib`, then `python3 tools/make_printables.py` (needs node). It reads the games and word lists straight from `index.html`.
+
+**Teacher settings** (bottom-left): turn individual activities on or off, mute sound, open any game's printables, or tap the ▶ next to any game to open it directly without spinning (handy for testing or when you already know what you want to play). Choices are saved in the browser.
 
 ## Style
 

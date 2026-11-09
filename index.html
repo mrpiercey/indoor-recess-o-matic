@@ -119,12 +119,19 @@
   #panel .list{overflow:auto;padding:8px 12px 20px;flex:1}
   #panel label{display:flex;align-items:center;gap:12px;padding:8px;font-size:24px;line-height:1;cursor:pointer}
   #panel label:hover{background:#ffffff14}
-  #panel label input{width:20px;height:20px;accent-color:var(--edu-green)}
+  #panel label input{width:20px;height:20px;accent-color:var(--edu-green);flex-shrink:0}
   #panel .licon{width:26px;height:26px;padding:4px;box-sizing:border-box;background:var(--edu-cream);border-radius:50%;flex-shrink:0}
   #panel label.off{opacity:.45;text-decoration:line-through}
   #panel .peek{margin-left:auto;font-family:var(--pixel);font-size:10px;background:var(--edu-sunshine);color:var(--edu-midnight);
     border:2px solid #fff;padding:6px 8px;cursor:pointer;box-shadow:2px 2px 0 #000;flex-shrink:0}
   #panel .peek:hover{background:var(--edu-light-green)}
+  #panel .pdf{margin-left:6px;font-family:var(--pixel);font-size:8px;background:var(--edu-cream);color:var(--edu-midnight);text-decoration:none;
+    border:2px solid #fff;padding:7px 6px;box-shadow:2px 2px 0 #000;flex-shrink:0}
+  #panel .pdf:hover{background:var(--edu-tech)}
+  #panel .tools a{font-family:var(--pixel);font-size:10px;background:var(--edu-orange);color:#fff;border:3px solid #fff;padding:9px 10px;box-shadow:3px 3px 0 #000;text-decoration:none}
+  #printLink{display:inline-block;margin-top:14px;font-size:22px;line-height:1.1;color:var(--edu-pacific);text-decoration:underline;text-underline-offset:3px}
+  #printLink:hover{color:var(--edu-orange)}
+  #printLink[hidden]{display:none}
   #panel .note{padding:10px 20px 14px;font-size:19px;line-height:1.15;color:var(--edu-tech);border-top:4px solid var(--edu-pacific)}
   #panel .warn{color:var(--edu-sunshine);min-height:1.2em}
 
@@ -235,6 +242,7 @@
     <p id="rDesc"></p>
     <button class="btn primary" id="playBtn">LET'S PLAY!</button>
     <button class="btn secondary" id="againBtn">SPIN AGAIN</button>
+    <br><a id="printLink" target="_blank" rel="noopener" hidden></a>
   </div>
 </div>
 
@@ -248,11 +256,13 @@
   <div class="tools">
     <button id="muteBtn">SOUND: ON</button>
     <button id="allOn">ALL ON</button>
+    <a id="printAll" href="printables/all-printables.pdf" target="_blank" rel="noopener" title="Every game's printables in one PDF">PRINT ALL</a>
   </div>
   <div class="list" id="list"></div>
-  <div class="note">Uncheck an activity to take it off the wheel. Tap &#9654; to open any game without spinning. Saved on this device.<div class="warn" id="warn"></div></div>
+  <div class="note">Uncheck an activity to take it off the wheel. Tap &#9654; to open any game without spinning. Tap PDF for that game's optional printables (rules poster, cards, sheets) to print ahead of time. Saved on this device.<div class="warn" id="warn"></div></div>
 </aside>
 
+<script src="printables/printables.js"></script>
 <script>
 /* ---------------- Activities ---------------- */
 const ACTIVITIES = [
@@ -641,6 +651,9 @@ function showResult(a) {
   document.getElementById("rIcon").src = iconURL(a.i, accentFor(a));
   document.getElementById("rName").textContent = a.n.toUpperCase();
   document.getElementById("rDesc").textContent = a.d;
+  const pr = window.PRINTABLES && PRINTABLES[a.n], pl = document.getElementById("printLink");
+  pl.hidden = !pr;
+  if (pr) { pl.href = pr.file; pl.textContent = "\u{1F5A8} Optional printables: " + pr.what.join(", ").toLowerCase() + " (PDF)"; }
   overlay.classList.add("show");
 }
 function hideResult() { overlay.classList.remove("show"); }
@@ -970,6 +983,12 @@ function renderList() {
     test.onclick = e => { e.preventDefault(); panel.classList.remove("open"); ensureAudio(); showResult(a); };
     const ic = document.createElement("img"); ic.className = "licon"; ic.src = iconURL(a.i, accentFor(a)); ic.alt = "";
     l.append(cb, ic, document.createTextNode(a.n), test);
+    const pr = window.PRINTABLES && PRINTABLES[a.n];
+    if (pr) {
+      const pdf = document.createElement("a"); pdf.className = "pdf"; pdf.textContent = "PDF"; pdf.href = pr.file; pdf.target = "_blank"; pdf.rel = "noopener";
+      pdf.title = "Printables: " + pr.what.join(", "); pdf.onclick = e => e.stopPropagation();
+      l.appendChild(pdf);
+    }
     list.appendChild(l);
   });
 }
